@@ -183,4 +183,7 @@ validated (Ethernet, USB, LDO, DCDC, IMU, GPS, etc.).
    - Vendored kiutils: tools/kiutils/
    - Pipeline code: src/pipeline/
    - Tests: tests/
-   - Pilot data: data/raw/ (10 cloned KiCad projects)
+   - Pilot data: data/raw/ (10 pilot + 100 bulk cloned KiCad projects)
+   - kicad-cli: /usr/bin/kicad-cli v9.0.7 — use for ERC, DRC, netlist export, BOM, Gerber
+     Example: `kicad-cli sch erc file.kicad_sch --format json -o report.json`
+   - Bulk parse script: `python3 -m src.pipeline.parse_project data/raw/project_name/`
