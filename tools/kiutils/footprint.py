@@ -912,8 +912,8 @@ class Footprint():
             if item[0] == 'net_tie_pad_groups':
                 for layer in item[1:]:
                     object.netTiePadGroups.append(layer)
-            if item[0] == 'dimension':
-                raise NotImplementedError("Dimensions are not yet handled! Please report this bug along with the file being parsed.")
+            # Dimensions in footprints are not yet handled — skip gracefully
+            # if item[0] == 'dimension': pass
 
         return object
 
