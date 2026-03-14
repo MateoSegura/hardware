@@ -169,7 +169,7 @@ Template ERC validation pending.
 - [x] Hierarchical sheet composition with sub-sheet refs + hierarchical labels
 - [x] kicad-cli validated output
 - [x] tests/test_schematic_gen.py (6 tests)
-- [ ] Decoupling cap auto-generation from templates
+- [x] Decoupling cap auto-generation from rules (src/pipeline/decoupling_gen.py, 7 tests)
 
 ### 4.4 kicad-cli validation module
 - [x] src/pipeline/validate.py — ERC, DRC, netlist export, BOM export

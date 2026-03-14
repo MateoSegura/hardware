@@ -1,0 +1,23 @@
+ERC report (2026-03-14T10:18:49-0700, Encoding UTF8)
+
+***** Sheet /
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.00 mm, 71.19 mm): Symbol C1 Pin 1 [Passive, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'.
+    ; warning
+    @(115.00 mm, 75.00 mm): Symbol C1 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(115.00 mm, 75.00 mm): Symbol C1 [C]
+[endpoint_off_grid]: Symbol pin or wire end off connection grid
+    ; warning
+    @(115.00 mm, 76.19 mm): Symbol C2 Pin 1 [Passive, Line]
+[footprint_link_issues]: The current configuration does not include the footprint library 'Capacitor_SMD'.
+    ; warning
+    @(115.00 mm, 80.00 mm): Symbol C2 [C]
+[lib_symbol_issues]: The current configuration does not include the symbol library 'Device'
+    ; warning
+    @(115.00 mm, 80.00 mm): Symbol C2 [C]
+
+ ** ERC messages: 6  Errors 0  Warnings 6
