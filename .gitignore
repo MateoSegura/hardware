@@ -1,0 +1,27 @@
+# Data (large, cloned repos)
+data/raw/
+data/parsed/
+data/patterns/
+data/validated/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Environment
+.devcontainer/.env
+
+# KiCad generated files
+*.kicad_prl
+*-backups/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
