@@ -1,0 +1,21 @@
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+</haed>
+<script language='javascript'>
+function start() {
+window.parent.location.replace('//www.alldatasheet.com');
+}
+</script>
+<body Onload = start()>
+</body>
+</html>
