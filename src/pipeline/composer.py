@@ -23,6 +23,7 @@ from src.pipeline.schematic_gen import (
 )
 from src.pipeline.decoupling_gen import generate_decoupling_caps, generate_decoupling_nets
 from src.pipeline.classify import extract_ic_family
+from src.pipeline.pattern_merge import normalize_ic_family
 
 
 # ---------------------------------------------------------------------------
@@ -160,6 +161,19 @@ def _find_pattern(
     for (a, b, _iface), pattern in patterns.items():
         if a == mcu_low and b == periph_low:
             return pattern
+
+    # Try with normalized IC family names (e.g., "STM32F7" -> "STM32")
+    norm_mcu = normalize_ic_family(mcu_family).lower()
+    norm_periph = normalize_ic_family(peripheral_family).lower()
+
+    if norm_mcu != mcu_low or norm_periph != periph_low:
+        norm_exact = patterns.get((norm_mcu, norm_periph, iface_low))
+        if norm_exact:
+            return norm_exact
+
+        for (a, b, _iface), pattern in patterns.items():
+            if a == norm_mcu and b == norm_periph:
+                return pattern
 
     # Try with shortened MCU family (e.g., "STM32F7" -> "STM32F")
     if len(mcu_low) > 5:

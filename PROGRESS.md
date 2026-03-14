@@ -8,9 +8,9 @@
 
 ---
 
-## Current Phase: PHASE 4 NEARLY COMPLETE — Real IC symbols, wires, round-trip proven
+## Current Phase: PHASE 5 IN PROGRESS — Manufacturing integration
 
-**877 tests passing. 110 projects parsed. 343 clean IC families. Real multi-pin symbols for ESP32/STM32. 0 ERC errors.**
+**993 tests passing. 110 projects parsed. 343 clean IC families. Real multi-pin symbols for ESP32/STM32. 0 ERC errors. BOM/CPL/Gerber/Drill exports working.**
 
 ## Phase Overview
 
@@ -18,9 +18,9 @@
 |-------|-------------|--------|
 | **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **COMPLETE** — netlist round-trip validated on 3 pilots (0 mismatches) |
 | **PHASE 2** | Clone + parse 100 projects at scale | **COMPLETE** (110/110 parsed, 779 units, 100% success) |
-| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **MOSTLY COMPLETE** — missing Claude-powered cluster labeling (TASK-014) |
-| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **MOSTLY COMPLETE** — real IC symbols, wires, 0 ERC. Missing novel MCU test (TASK-024) |
-| **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **NOT STARTED** (0/5 tasks) |
+| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **COMPLETE** — 30 clusters labeled via Claude CLI |
+| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **COMPLETE** — real IC symbols, wires, 0 ERC. Novel MCU e2e test passing (TASK-024 done) |
+| **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **IN PROGRESS** (4/5 tasks complete) |
 
 ---
 
@@ -130,7 +130,7 @@ Parse time: 137s total.
 ### 3.2 Subcircuit clustering
 - [x] Fingerprint: sorted passive type counts per IC
 - [x] Cluster by fingerprint identity
-- [ ] Label clusters with Claude (~$0.01/cluster)
+- [x] Label clusters with Claude (~$0.01/cluster)
 - [x] Output: data/patterns/subcircuit_clusters.json
 
 ### 3.3 Decoupling pattern extraction
@@ -152,7 +152,7 @@ Parse time: 137s total.
 
 ### PHASE 3 MOSTLY DONE
 Circuit pattern database populated. 253 reusable templates generated and ERC validated.
-Missing: TASK-014 (Claude-powered cluster labeling).
+TASK-014 complete: 30 clusters labeled via Claude CLI (src/pipeline/cluster_label.py).
 
 ---
 
@@ -184,7 +184,7 @@ Missing: TASK-014 (Claude-powered cluster labeling).
 ### 4.5 End-to-end test
 - [x] "GPS tracker" → generates KiCad project with 0 ERC errors, wires for passives, spread hlabels
 - [x] Template-driven decoupling cap generation (STM32F4xx bypass caps)
-- [ ] Novel MCU (from datasheet PDF only) → valid project (needs Claude API for PDF parsing)
+- [x] Novel MCU (from datasheet PDF only) → valid project (ESP32-C6-WROOM-1, no fallback, Claude CLI extraction)
 
 ### 4.6 Known generation gaps (from 2026-03-14 audit)
 - [x] Wire segments — passives now have wires connecting pins to nearby labels
@@ -193,6 +193,43 @@ Missing: TASK-014 (Claude-powered cluster labeling).
 - [x] Missing project files — .kicad_pro, sym-lib-table, fp-lib-table now generated
 - [x] ERC clean — GPS tracker now has 0 ERC errors
 - [x] Netlist round-trip — our parser matches kicad-cli on 3 pilots (0 mismatches)
+
+---
+
+## PHASE 5: Manufacturing Integration
+
+### 5.1 Parts inventory (TASK-025)
+- [x] InventoryItem dataclass with mpn, description, package, quantity, feeder_slot
+- [x] load_inventory() — load from JSON
+- [x] save_inventory() — save to JSON
+- [x] Roundtrip tests (4 tests)
+
+### 5.2 BOM matching (TASK-026)
+- [x] BomEntry dataclass with ref, value, footprint, qty, dnp, mpn
+- [x] export_bom() — kicad-cli BOM export + CSV parsing
+- [x] match_bom_to_inventory() — package-based matching with quantity tracking
+- [x] Tests on real STM32F7 FC project (10 tests)
+
+### 5.3 CPL generation for LumenPNP (TASK-027)
+- [x] CplEntry dataclass with ref, x_mm, y_mm, rotation, side, feeder_slot
+- [x] export_placement() — kicad-cli pos export + CSV parsing
+- [x] generate_lumen_pnp_csv() — LumenPNP-compatible CSV output
+- [x] assign_feeders() — map CPL entries to inventory feeder slots
+- [x] Tests on real STM32F7 FC project (8 tests)
+
+### 5.4 Gerber + drill export (TASK-028)
+- [x] GerberOutput dataclass with output_dir, gerber_files, drill_files, success, errors
+- [x] export_gerbers() — kicad-cli Gerber export
+- [x] export_drill() — kicad-cli drill export
+- [x] export_manufacturing_package() — complete package (Gerbers + drill + BOM + CPL)
+- [x] Tests on real STM32F7 FC project (12 tests)
+
+### 5.5 3D model export
+- [ ] Not yet started
+
+### PHASE 5 MOSTLY DONE
+Manufacturing pipeline complete: BOM, CPL, Gerber, drill exports all working.
+34 tests passing on real STM32F7 FC project. Missing: 3D model export (TASK-029).
 
 ---
 

@@ -158,36 +158,54 @@ Output ONLY valid JSON, no markdown fences or commentary.
 """
 
 
-def _extract_via_claude(pdf_path: Path) -> dict | None:
-    """Call Claude CLI with the PDF and parse the JSON response."""
+def _extract_via_claude(pdf_path: Path, max_retries: int = 2) -> dict | None:
+    """Call Claude CLI with the PDF and parse the JSON response.
+
+    The prompt references the PDF file path directly so that Claude CLI
+    reads it from disk using its built-in file-reading tools.  Retries
+    up to *max_retries* times on transient failures (empty output, JSON
+    decode errors).
+    """
     if CLAUDE_CLI is None:
         return None
 
-    try:
-        result = subprocess.run(
-            [CLAUDE_CLI, "--print", "-p", EXTRACTION_PROMPT, str(pdf_path)],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return None
+    abs_path = pdf_path.resolve()
+    prompt_with_path = (
+        f"Read the file {abs_path} and extract the following.\n\n"
+        f"{EXTRACTION_PROMPT}"
+    )
 
-    if result.returncode != 0:
-        return None
+    for attempt in range(max_retries + 1):
+        try:
+            result = subprocess.run(
+                [CLAUDE_CLI, "--print"],
+                input=prompt_with_path,
+                capture_output=True,
+                text=True,
+                timeout=180,
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            continue
 
-    text = result.stdout.strip()
+        if result.returncode != 0:
+            continue
 
-    # Strip markdown fences if present
-    if text.startswith("```"):
-        lines = text.split("\n")
-        lines = [line for line in lines if not line.startswith("```")]
-        text = "\n".join(lines)
+        text = result.stdout.strip()
+        if not text:
+            continue
 
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        return None
+        # Strip markdown fences if present
+        if text.startswith("```"):
+            lines = text.split("\n")
+            lines = [line for line in lines if not line.startswith("```")]
+            text = "\n".join(lines)
+
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            continue
+
+    return None
 
 
 # -------------------------------------------------------------------------
