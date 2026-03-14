@@ -8,10 +8,8 @@ and hierarchical pins across all sheets.
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 from .models import (
-    LabelInfo,
     NetInfo,
     ParsedSheet,
     SubSheetRef,

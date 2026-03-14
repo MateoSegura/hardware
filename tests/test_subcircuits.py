@@ -13,7 +13,6 @@ from src.pipeline.subcircuits import (
     IC_PIN_THRESHOLD,
     _get_ref_from_footprint,
     _is_excluded_center,
-    _is_passive,
     cluster_subcircuits,
     detect_subcircuits,
 )
@@ -188,7 +187,7 @@ def test_subcircuit_has_fingerprint(stm32_subcircuits):
     """Every subcircuit should have a non-empty fingerprint."""
     for sc in stm32_subcircuits:
         assert sc.fingerprint, f"Subcircuit {sc.center_ref} has no fingerprint"
-        assert len(sc.fingerprint) == 16, f"Fingerprint should be 16 hex chars"
+        assert len(sc.fingerprint) == 16, "Fingerprint should be 16 hex chars"
 
 
 def test_subcircuit_has_supporting_components(stm32_subcircuits):

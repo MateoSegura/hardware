@@ -2,7 +2,6 @@
 """Run subcircuit detection on all parsed projects."""
 import json
 import sys
-import time
 from pathlib import Path
 
 project_root = Path(__file__).parent.parent
@@ -81,7 +80,7 @@ def main():
 
     print(f"\n{'='*60}")
     print(f"Total: {len(all_subcircuits)} subcircuits in {len(clusters)} clusters")
-    print(f"\nTop 10 clusters:")
+    print("\nTop 10 clusters:")
     for c in clusters[:10]:
         print(f"  [{c.count}x] {c.label or 'unlabeled'} — {', '.join(c.canonical_components[:5])}")
 

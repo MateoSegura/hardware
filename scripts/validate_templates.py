@@ -17,14 +17,13 @@ import json
 import logging
 import sys
 import tempfile
-from dataclasses import asdict
 from pathlib import Path
 
 # Ensure repo root is importable
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-from src.pipeline.models import CircuitTemplate, TemplatePassive
+from src.pipeline.models import CircuitTemplate
 from src.pipeline.schematic_gen import ComponentPlacement, NetConnection, generate_schematic
 from src.pipeline.templates import (
     generate_all_templates,
@@ -281,7 +280,7 @@ def main() -> None:
     passed = sum(1 for r in results if r["erc_success"] and r["erc_errors"] == 0)
     failed = sum(1 for r in results if not r["erc_success"])
     print(f"\n{'='*60}")
-    print(f"Template ERC Validation Report")
+    print("Template ERC Validation Report")
     print(f"{'='*60}")
     print(f"  Templates validated: {total}")
     print(f"  Passed (no errors):  {passed}")

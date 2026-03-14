@@ -8,8 +8,7 @@ generation (no kiutils dependency for schematics).
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
 
 
 def _uuid() -> str:

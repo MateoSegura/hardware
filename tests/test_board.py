@@ -8,7 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
 from src.pipeline.board import parse_board
-from src.pipeline.models import FootprintInfo, LayerInfo, ParsedBoard
+from src.pipeline.models import ParsedBoard
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
@@ -83,7 +83,7 @@ def test_parse_hackrf_board(hackrf_board):
 
 def test_parse_nrfmicro_board(nrfmicro_board):
     assert len(nrfmicro_board.layers) == 2
-    layer_names = [l.name for l in nrfmicro_board.layers]
+    layer_names = [lyr.name for lyr in nrfmicro_board.layers]
     assert "F.Cu" in layer_names
     assert "B.Cu" in layer_names
     assert len(nrfmicro_board.footprints) == 25
@@ -97,7 +97,7 @@ def test_layer_types(stm32_board):
     for layer in stm32_board.layers:
         assert layer.layer_type in ("signal", "power", "mixed")
     # STM32F7 has both power and mixed (signal) layers
-    layer_types = {l.layer_type for l in stm32_board.layers}
+    layer_types = {lyr.layer_type for lyr in stm32_board.layers}
     assert "power" in layer_types
     assert "mixed" in layer_types
 

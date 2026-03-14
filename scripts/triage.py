@@ -111,7 +111,7 @@ def score_project(project_dir: Path) -> dict:
             # Layer count (signal + power layers)
             layers = re.findall(r'\(\d+ "([^"]+)" (signal|power)', pcb_text)
             result["layer_count"] = len(layers)
-            result["layer_names"] = [l[0] for l in layers]
+            result["layer_names"] = [lyr[0] for lyr in layers]
 
             # Track and via counts
             result["track_count"] = pcb_text.count("(segment ")

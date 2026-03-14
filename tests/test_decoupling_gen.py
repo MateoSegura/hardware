@@ -9,11 +9,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from src.pipeline.schematic_gen import (
-    ComponentPlacement,
-    NetConnection,
     generate_schematic,
 )
 from src.pipeline.decoupling_gen import (

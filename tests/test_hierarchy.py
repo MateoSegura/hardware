@@ -4,9 +4,7 @@ Uses real pilot project data in data/raw/ — no mocks.
 """
 
 import logging
-from pathlib import Path
 
-import pytest
 
 from src.pipeline.hierarchy import walk_hierarchy
 

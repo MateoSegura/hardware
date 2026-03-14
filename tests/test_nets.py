@@ -223,7 +223,7 @@ class TestHierarchicalConnection:
             ],
         )
         # ghost sheet not in tree
-        nets = trace_nets(_build_tree(parent))
+        trace_nets(_build_tree(parent))  # should not crash
         # Should not crash — just no connection resolved
 
 

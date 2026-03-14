@@ -5,15 +5,12 @@ and validated with kicad-cli ERC without crashing.
 """
 
 import json
-import tempfile
 from pathlib import Path
 
-import pytest
 
 from src.pipeline.models import CircuitTemplate, TemplatePassive
-from src.pipeline.schematic_gen import ComponentPlacement, NetConnection, generate_schematic
+from src.pipeline.schematic_gen import generate_schematic
 from src.pipeline.templates import generate_all_templates
-from src.pipeline.validate import run_erc
 
 # Import from the validation script
 import sys

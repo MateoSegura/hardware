@@ -19,7 +19,6 @@ from kiutils.items.brditems import Segment, Via, Arc
 from kiutils.symbol import Symbol
 from kiutils.schematic import Schematic
 from kiutils.board import Board
-from kiutils.footprint import Footprint
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 ANTMICRO_DIR = DATA_DIR / "antmicro__jetson-nano-baseboard"
@@ -118,7 +117,7 @@ class TestTstampUuidRename:
         vias = [t for t in board.traceItems if isinstance(t, Via)]
         assert len(vias) > 0, "Expected vias in KiCad 9 board"
         for via in vias[:5]:
-            assert via.tstamp, f"Via missing tstamp/uuid"
+            assert via.tstamp, "Via missing tstamp/uuid"
             # KiCad 9 UUIDs have the standard format
             assert "-" in via.tstamp, f"Expected UUID format, got: {via.tstamp}"
 
@@ -185,7 +184,7 @@ class TestSymbolNameRegex:
         assert sym.styleId == 1
 
     def test_numeric_name_not_split(self):
-        """Name 'C_100n_0402' has non-numeric segments so it should NOT match unit/style pattern.
+        r"""Name 'C_100n_0402' has non-numeric segments so it should NOT match unit/style pattern.
         '100n' is not all digits, so the regex won't match _\d+_\d+$ and it becomes a plain name."""
         sym = Symbol()
         sym.libId = "C_100n_0402"

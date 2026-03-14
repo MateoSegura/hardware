@@ -9,11 +9,8 @@ Uses real kicad-cli v9 for validation (ERC, BOM export).
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
-import pytest
 
-from src.pipeline.models import CircuitTemplate, TemplatePassive
 from src.pipeline.parse_project import parse_project
 from src.pipeline.schematic_gen import (
     ComponentPlacement,
@@ -24,7 +21,7 @@ from src.pipeline.schematic_gen import (
 )
 from src.pipeline.symbol_gen import ChipDef, PinDef, generate_symbol_file
 from src.pipeline.templates import build_decoupling_template
-from src.pipeline.validate import export_bom, run_erc
+from src.pipeline.validate import run_erc
 
 
 # ---------------------------------------------------------------------------

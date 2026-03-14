@@ -5,7 +5,7 @@ a clean, pretty-printed JSON output.
 """
 
 import json
-from dataclasses import asdict, fields, is_dataclass
+from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
 from src.pipeline.models import ParsedProject

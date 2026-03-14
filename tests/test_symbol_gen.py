@@ -5,7 +5,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
@@ -14,7 +13,6 @@ from kiutils.symbol import SymbolLib
 from src.pipeline.symbol_gen import (
     ChipDef,
     PinDef,
-    generate_symbol,
     generate_symbol_file,
 )
 

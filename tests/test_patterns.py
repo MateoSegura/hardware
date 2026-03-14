@@ -197,7 +197,7 @@ class TestDecouplingExtraction:
     def test_run_writes_json(self, patterns):
         with tempfile.TemporaryDirectory() as tmpdir:
             out = Path(tmpdir) / "decoupling_rules.json"
-            result = decoupling_run(PARSED_DIR, out)
+            decoupling_run(PARSED_DIR, out)
             assert out.exists()
             loaded = json.loads(out.read_text())
             assert "by_ic_family" in loaded
@@ -351,7 +351,7 @@ class TestSheetPatternExtraction:
     def test_run_writes_json(self, patterns):
         with tempfile.TemporaryDirectory() as tmpdir:
             out = Path(tmpdir) / "sheet_organization.json"
-            result = sheet_run(PARSED_DIR, out)
+            sheet_run(PARSED_DIR, out)
             assert out.exists()
             loaded = json.loads(out.read_text())
             assert "top_sheet_names" in loaded

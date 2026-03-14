@@ -97,7 +97,7 @@ def filter_repos(
 def print_report(candidates: list[dict], total_raw: int):
     """Print summary statistics about the filtered candidates."""
     print(f"\n{'='*60}")
-    print(f"RepoRecon KiCad Filter Report")
+    print("RepoRecon KiCad Filter Report")
     print(f"{'='*60}")
     print(f"Total repos in index:     {total_raw:,}")
     print(f"Candidates after filter:  {len(candidates):,}")

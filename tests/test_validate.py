@@ -4,7 +4,6 @@ import csv
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from src.pipeline.validate import (
     export_bom,

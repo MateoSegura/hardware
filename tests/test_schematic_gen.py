@@ -5,7 +5,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from src.pipeline.schematic_gen import (
     ComponentPlacement,

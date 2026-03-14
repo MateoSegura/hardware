@@ -92,7 +92,7 @@ def main():
     if total_parsed:
         print(f"Success rate: {len(results['success'])}/{total_parsed}")
     if results["failed"]:
-        print(f"\nFailed projects:")
+        print("\nFailed projects:")
         for f_item in results["failed"]:
             print(f"  {f_item['name']}: {f_item['error']}")
     print(f"\nReport saved to {report_file}")

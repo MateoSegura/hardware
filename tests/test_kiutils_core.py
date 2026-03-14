@@ -21,13 +21,7 @@ from kiutils.schematic import Schematic
 from kiutils.board import Board
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.schitems import (
-    HierarchicalSheet,
     SchematicSymbol,
-    SymbolInstance,
-    HierarchicalLabel,
-    GlobalLabel,
-    LocalLabel,
-    HierarchicalPin,
 )
 from kiutils.items.common import Net
 
@@ -179,7 +173,7 @@ class TestBoardParsing:
         """Test 12: Verify STM32F7 FC has 8 signal/power/mixed layers."""
         board = _load_board(stm32f7_pcb)
         copper_layers = [
-            l for l in board.layers if l.type in ("signal", "power", "mixed")
+            lyr for lyr in board.layers if lyr.type in ("signal", "power", "mixed")
         ]
         assert len(copper_layers) == 8, (
             f"Expected 8 copper layers, got {len(copper_layers)}"
