@@ -118,24 +118,26 @@ Parse time: 137s total.
 - [x] Graph algorithm: for each IC, find all passives within 2 net hops
 - [x] Group as subcircuit (center IC + supporting components)
 - [x] Fingerprinting + clustering implemented
-- [x] tests/test_subcircuits.py
-- [ ] Run on all 110 parsed projects → output subcircuits.json per project
+- [x] tests/test_subcircuits.py (20 tests)
+- [x] Run on all 110 projects → 1014 subcircuits, 761 clusters
+- [x] Fixed: exclude MountingHoles, switches, normalize fingerprints
 
 ### 3.2 Subcircuit clustering
-- [ ] Fingerprint: sorted(component_types + connection_topology)
-- [ ] Cluster by fingerprint similarity
+- [x] Fingerprint: sorted passive type counts per IC
+- [x] Cluster by fingerprint identity
 - [ ] Label clusters with Claude (~$0.01/cluster)
-- [ ] Output: data/patterns/clusters.json
+- [x] Output: data/patterns/subcircuit_clusters.json
 
 ### 3.3 Decoupling pattern extraction
-- [ ] For each MCU: find all caps connected to power pins
-- [ ] Statistical summary per MCU family
-- [ ] Output: data/patterns/decoupling_rules.json
+- [x] For each MCU: find all caps connected to power pins
+- [x] Statistical summary per IC family — 437 families, 48,905 caps
+- [x] Output: data/patterns/decoupling_rules.json
+- [x] tests/test_patterns.py (79 tests)
 
 ### 3.4 Hierarchical sheet organization patterns
-- [ ] Record: sheet name → functional domains
-- [ ] Record: components per sheet, sheet-to-sheet connections
-- [ ] Output: data/patterns/sheet_organization.json
+- [x] Record: sheet name → functional domains (power, mcu, comm, sensor, etc.)
+- [x] Record: components per sheet, hierarchy depth distribution
+- [x] Output: data/patterns/sheet_organization.json
 
 ### 3.5 Template generation
 - [ ] Build canonical templates from largest clusters
