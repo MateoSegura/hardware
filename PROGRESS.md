@@ -8,15 +8,15 @@
 
 ---
 
-## Current Phase: PHASE 1 — Foundation
+## Current Phase: PHASE 1 — Foundation (finishing integration), PHASE 2+3 starting in parallel
 
 ## Phase Overview
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **IN PROGRESS** |
-| **PHASE 2** | Clone + parse 100 projects at scale | NOT STARTED |
-| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | NOT STARTED |
+| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **NEARLY COMPLETE** (173 tests passing) |
+| **PHASE 2** | Clone + parse 100 projects at scale | **IN PROGRESS** (candidates.json ready, clone script ready) |
+| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **IN PROGRESS** (subcircuit detection being built) |
 | **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | NOT STARTED |
 
 ---
@@ -25,43 +25,50 @@
 
 ### 1.1 Vendor kiutils + fix known issues
 - [x] Vendor kiutils v1.4.8 into tools/kiutils/
-- [ ] Fix KiCad 8/9 tstamp→uuid rename
-- [ ] Fix (effects (hide yes)) syntax
-- [ ] Fix symbol name regex bug (_digit_digit misparse)
-- [ ] Fix scientific notation in S-expr parser
-- [ ] Add generator_version token support
-- [ ] Add embedded_fonts/embedded_files tolerance
-- [ ] Tests for all fixes (tests/test_kiutils_fixes.py)
+- [x] Fix KiCad 8/9 tstamp→uuid rename
+- [x] Fix (effects (hide yes)) syntax
+- [x] Fix symbol name regex bug (_digit_digit misparse)
+- [x] Fix scientific notation in S-expr parser
+- [x] Add generator_version token support
+- [x] Add embedded_fonts/embedded_files tolerance
+- [x] Tests for all fixes (tests/test_kiutils_fixes.py)
 
 ### 1.2 Core kiutils test coverage
-- [ ] Schematic parsing tests (10 test cases)
-- [ ] Board parsing tests (6 test cases)
-- [ ] Cross-version tests (2 test cases)
-- [ ] Edge case tests (2 test cases)
-- [ ] conftest.py with pilot project fixtures
+- [x] Schematic parsing tests (10 test cases)
+- [x] Board parsing tests (6 test cases)
+- [x] Cross-version tests (5 test cases)
+- [x] Edge case tests (2 test cases)
+- [x] conftest.py with pilot project fixtures
 
 ### 1.3 Project discovery module
-- [ ] src/pipeline/models.py — data model
-- [ ] src/pipeline/discovery.py — find all design units in a repo
-- [ ] tests/test_discovery.py (10 test cases)
-- [ ] All tests passing
+- [x] src/pipeline/models.py — data model
+- [x] src/pipeline/discovery.py — find all design units in a repo
+- [x] tests/test_discovery.py (33 test cases)
+- [x] All tests passing
 
 ### 1.4 Hierarchy walker module
-- [ ] src/pipeline/hierarchy.py — recursive sheet loading
-- [ ] Version-aware ref designator resolution (v6 vs v7+)
-- [ ] Power symbol detection
-- [ ] Sheet caching for shared sheets
-- [ ] tests/test_hierarchy.py (12 test cases)
-- [ ] All tests passing
+- [x] src/pipeline/hierarchy.py — recursive sheet loading
+- [x] Version-aware ref designator resolution (v6 vs v7+)
+- [x] Power symbol detection
+- [x] Sheet caching for shared sheets
+- [x] tests/test_hierarchy.py (12 test cases)
+- [x] All tests passing
 
 ### 1.5 Board parser + JSON export
-- [ ] src/pipeline/board.py — .kicad_pcb parsing
-- [ ] src/pipeline/export.py — JSON export
-- [ ] tests/test_board.py (10 test cases)
-- [ ] tests/test_export.py (3 test cases)
-- [ ] All tests passing
+- [x] src/pipeline/board.py — .kicad_pcb parsing
+- [x] src/pipeline/export.py — JSON export
+- [x] tests/test_board.py (13 test cases)
+- [x] tests/test_export.py (3 test cases)
+- [x] All tests passing
 
-### 1.6 Integration + review
+### 1.6 Net tracer module
+- [x] src/pipeline/nets.py — net connectivity across hierarchical sheets
+- [x] tests/test_nets.py (51 test cases)
+- [x] All tests passing
+
+### 1.7 Integration + review
+- [ ] src/pipeline/parse_project.py — unified entry point (discovery → hierarchy → board → nets → export)
+- [ ] tests/test_integration.py — end-to-end tests on all 10 pilots
 - [ ] Delete old src/pipeline/parser.py (replaced by new modules)
 - [ ] Run full test suite: pytest tests/ -v
 - [ ] All 10 pilot projects parse without errors
