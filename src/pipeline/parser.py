@@ -128,11 +128,22 @@ def _parse_schematic_sheet(
     for sheet in getattr(sch, "sheets", []):
         sub_name = ""
         sub_file = ""
-        for prop in getattr(sheet, "properties", []):
-            if prop.key == "Sheetname":
-                sub_name = prop.value or ""
-            elif prop.key == "Sheetfile":
-                sub_file = prop.value or ""
+
+        # kiutils stores these as Property objects on direct attributes
+        sn = getattr(sheet, "sheetName", None)
+        fn = getattr(sheet, "fileName", None)
+        if sn and hasattr(sn, "value"):
+            sub_name = sn.value or ""
+        if fn and hasattr(fn, "value"):
+            sub_file = fn.value or ""
+
+        # Fallback: check properties list
+        if not sub_file:
+            for prop in getattr(sheet, "properties", []):
+                if prop.key in ("Sheetname", "Sheet name"):
+                    sub_name = prop.value or ""
+                elif prop.key in ("Sheetfile", "Sheet file"):
+                    sub_file = prop.value or ""
 
         if sub_file:
             sub_sheets.append(
