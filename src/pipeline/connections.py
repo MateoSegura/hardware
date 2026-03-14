@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import sys
 from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "tools"))
@@ -21,7 +21,7 @@ from src.pipeline.classify import (
     extract_ic_family,
     is_power_net,
 )
-from src.pipeline.models import ParsedBoard, PadInfo, FootprintInfo
+from src.pipeline.models import ParsedBoard
 
 
 # ── Data classes ────────────────────────────────────────────────────────

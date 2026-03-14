@@ -12,7 +12,7 @@ a complete hierarchical KiCad project using:
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from src.pipeline.schematic_gen import (

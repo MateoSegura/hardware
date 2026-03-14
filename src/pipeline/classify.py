@@ -188,13 +188,14 @@ def classify_passive_type(
 
     # Check lib_id — require the letter to be followed by _ or end-of-string
     # to avoid "Device:Crystal" matching as capacitor.
-    if re.search(r"device:ferrite_bead", lib_lower):
+    # Match both "Device:" and "passive:" library prefixes.
+    if re.search(r"(?:device|passive):ferrite_bead", lib_lower):
         return "FB"
-    if re.search(r"device:r(?:_|$)", lib_lower):
+    if re.search(r"(?:device|passive):r(?:_|$)", lib_lower):
         return "R"
-    if re.search(r"device:c(?:_|$)", lib_lower):
+    if re.search(r"(?:device|passive):c(?:_|$)", lib_lower):
         return "C"
-    if re.search(r"device:l(?:_|$)", lib_lower):
+    if re.search(r"(?:device|passive):l(?:_|$)", lib_lower):
         return "L"
 
     # Check footprint

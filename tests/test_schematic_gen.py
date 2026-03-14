@@ -205,8 +205,8 @@ def test_hierarchical_project():
 
     result = generate_hierarchical_project(sheets, root_title="TestProject")
 
-    # Should have root + 2 sub-sheets = 3 files
-    assert len(result) == 3
+    # Should have root + 2 sub-sheets + .kicad_pro + sym-lib-table + fp-lib-table = 6 files
+    assert len(result) == 6
 
     # Root file exists
     assert "testproject.kicad_sch" in result
@@ -326,3 +326,98 @@ def test_component_uuids_unique():
     assert len(all_uuids) == len(set(all_uuids)), (
         f"Found {len(all_uuids) - len(set(all_uuids))} duplicate UUIDs"
     )
+
+
+# ---------------------------------------------------------------------------
+# Test 7: Wires generated for passives
+# ---------------------------------------------------------------------------
+
+def test_passive_wires_generated():
+    """Verify wire segments are generated connecting passives to nearby labels."""
+    components = [
+        ComponentPlacement(
+            lib_id="Device:C",
+            ref="C1",
+            value="100nF",
+            footprint="Capacitor_SMD:C_0402_1005Metric",
+            position=(100.0, 70.0),
+        ),
+    ]
+    nets = [
+        NetConnection(net_name="VCC", label_type="global", position=(100.0, 63.0)),
+        NetConnection(net_name="GND", label_type="global", position=(100.0, 77.0)),
+    ]
+
+    content = generate_schematic(components, nets, title="Wire Test")
+
+    # Should contain wire elements
+    assert "(wire" in content, "Schematic should contain wire segments"
+    wire_count = content.count("(wire")
+    assert wire_count >= 2, f"Expected at least 2 wires, got {wire_count}"
+
+
+# ---------------------------------------------------------------------------
+# Test 8: Hierarchical labels spread vertically
+# ---------------------------------------------------------------------------
+
+def test_hierarchical_labels_spread():
+    """Verify hierarchical labels are at different Y positions, not stacked."""
+    sheets = {
+        "test.kicad_sch": SheetContent(
+            title="Test",
+            components=[],
+            nets=[],
+            hierarchical_labels=[
+                ("SIG_A", "input"),
+                ("SIG_B", "output"),
+                ("SIG_C", "bidirectional"),
+            ],
+        ),
+    }
+
+    result = generate_hierarchical_project(sheets, root_title="SpreadTest")
+    sub = result["test.kicad_sch"]
+
+    # Extract all hierarchical_label positions
+    import re
+    hlabel_positions = re.findall(
+        r'\(hierarchical_label "[^"]+"\s+\(shape \w+\)\s+\(at ([\d.]+) ([\d.]+)',
+        sub,
+    )
+    assert len(hlabel_positions) == 3, f"Expected 3 hlabels, found {len(hlabel_positions)}"
+
+    # All Y positions should be different
+    y_values = [float(pos[1]) for pos in hlabel_positions]
+    assert len(set(y_values)) == 3, f"Hierarchical labels should have unique Y positions, got {y_values}"
+
+
+# ---------------------------------------------------------------------------
+# Test 9: Project file and library tables generated
+# ---------------------------------------------------------------------------
+
+def test_project_files_generated():
+    """Verify .kicad_pro, sym-lib-table, fp-lib-table are generated."""
+    sheets = {
+        "power.kicad_sch": SheetContent(
+            title="Power",
+            components=[],
+            nets=[],
+            hierarchical_labels=[("VCC", "output")],
+        ),
+    }
+
+    result = generate_hierarchical_project(sheets, root_title="ProjTest")
+
+    assert "projtest.kicad_pro" in result, "Should generate .kicad_pro"
+    assert "sym-lib-table" in result, "Should generate sym-lib-table"
+    assert "fp-lib-table" in result, "Should generate fp-lib-table"
+
+    # .kicad_pro should be valid JSON
+    import json
+    proj = json.loads(result["projtest.kicad_pro"])
+    assert "meta" in proj
+    assert "schematic" in proj
+
+    # Library tables should have correct S-expression type
+    assert result["sym-lib-table"].startswith("(sym_lib_table)")
+    assert result["fp-lib-table"].startswith("(fp_lib_table)")

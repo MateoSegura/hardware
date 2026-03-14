@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
 
-KICAD_CLI = "/usr/bin/kicad-cli"
+KICAD_CLI = shutil.which("kicad-cli") or "/usr/bin/kicad-cli"
 TIMEOUT = 120  # seconds
 
 

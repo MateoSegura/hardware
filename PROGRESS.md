@@ -8,18 +8,19 @@
 
 ---
 
-## Current Phase: ALL PHASES COMPLETE — Pipeline proven end-to-end
+## Current Phase: PHASE 3 MOSTLY DONE, PHASE 4 PARTIAL — Generation needs major work
 
-**552 tests passing. 110 projects parsed. 253 templates. GPS tracker generated + validated.**
+**809 tests passing. 110 projects parsed. 253 templates. Generation produces structural skeletons, not functional schematics.**
 
 ## Phase Overview
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **COMPLETE** (228+ tests passing) |
+| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **MOSTLY COMPLETE** — missing netlist round-trip validation (TASK-007/008) |
 | **PHASE 2** | Clone + parse 100 projects at scale | **COMPLETE** (110/110 parsed, 779 units, 100% success) |
-| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **COMPLETE** (253 templates, 48K caps, 1K subcircuits) |
-| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **COMPLETE** (GPS tracker e2e passes, 552 tests) |
+| **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **MOSTLY COMPLETE** — missing Claude-powered cluster labeling (TASK-014) |
+| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **PARTIAL** (3/6 tasks done, generated output has zero wires + 2-pin IC stubs) |
+| **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **NOT STARTED** (0/5 tasks) |
 
 ---
 
@@ -76,10 +77,12 @@
 - [x] All 10 pilot projects parse without errors
 - [x] Commit and push
 
-### PHASE 1 DONE CRITERIA
+### PHASE 1 MOSTLY DONE
 All tests pass. All 10 pilot projects parse into valid JSON. No crashes on
 any KiCad version (3-9). Hierarchical projects resolve correctly with
 components from all sub-sheets.
+**Missing:** Netlist round-trip validation (TASK-007/008) — `validate.py` wraps
+kicad-cli but there is no parse→regenerate→diff pipeline.
 
 ---
 
@@ -135,6 +138,7 @@ Parse time: 137s total.
 - [x] Statistical summary per IC family — 437 families, 48,905 caps
 - [x] Output: data/patterns/decoupling_rules.json
 - [x] tests/test_patterns.py (79 tests)
+- [ ] Re-extract to filter 57 connector families misclassified as ICs (fix applied, needs re-run)
 
 ### 3.4 Hierarchical sheet organization patterns
 - [x] Record: sheet name → functional domains (power, mcu, comm, sensor, etc.)
@@ -146,9 +150,9 @@ Parse time: 137s total.
 - [x] Output: data/patterns/templates/ (summary + individual JSON)
 - [x] Validate templates (ERC + netlist check via kicad-cli) — 253/253 validated
 
-### PHASE 3 DONE CRITERIA
-Circuit pattern database populated. 253 reusable templates generated.
-Template ERC validation pending.
+### PHASE 3 MOSTLY DONE
+Circuit pattern database populated. 253 reusable templates generated and ERC validated.
+Missing: TASK-014 (Claude-powered cluster labeling).
 
 ---
 
@@ -176,9 +180,16 @@ Template ERC validation pending.
 - [x] tests/test_validate.py (9 tests)
 
 ### 4.5 End-to-end test
-- [x] "GPS tracker" → valid KiCad project (kicad-cli validated, round-trip proven)
+- [x] "GPS tracker" → generates KiCad project with 0 ERC errors, wires for passives, spread hlabels
 - [x] Template-driven decoupling cap generation (STM32F4xx bypass caps)
 - [ ] Novel MCU (from datasheet PDF only) → valid project (needs Claude API for PDF parsing)
+
+### 4.6 Known generation gaps (from 2026-03-14 audit)
+- [x] Wire segments — passives now have wires connecting pins to nearby labels
+- [ ] Real IC symbols — all ICs render as 2-pin stubs (need full pin definitions from datasheet parser)
+- [x] Component placement — hierarchical labels now spread vertically (7.62mm spacing)
+- [x] Missing project files — .kicad_pro, sym-lib-table, fp-lib-table now generated
+- [x] ERC clean — GPS tracker now has 0 ERC errors
 
 ---
 

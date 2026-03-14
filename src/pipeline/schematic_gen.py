@@ -287,7 +287,8 @@ def _gen_wire(x1: float, y1: float, x2: float, y2: float) -> str:
 \t)"""
 
 
-def _gen_hierarchical_label(name: str, direction: str) -> str:
+def _gen_hierarchical_label(name: str, direction: str,
+                            x: float = 25.4, y: float = 25.4) -> str:
     """Generate a hierarchical_label S-expression for a sub-sheet."""
     shape_map = {
         "input": "input",
@@ -298,7 +299,7 @@ def _gen_hierarchical_label(name: str, direction: str) -> str:
     shape = shape_map.get(direction, "bidirectional")
     return f"""\t(hierarchical_label "{name}"
 \t\t(shape {shape})
-\t\t(at 25.4 25.4 180)
+\t\t(at {x} {y} 180)
 \t\t(effects
 \t\t\t(font
 \t\t\t\t(size 1.27 1.27)
@@ -383,8 +384,91 @@ def _gen_sheet_ref(filename: str, sheet_name: str,
 
 
 # ---------------------------------------------------------------------------
+# Project file generators
+# ---------------------------------------------------------------------------
+
+def _gen_project_file() -> str:
+    """Generate a minimal .kicad_pro project file (JSON format)."""
+    import json
+    proj = {
+        "meta": {
+            "filename": "",
+            "version": 1,
+        },
+        "schematic": {
+            "drawing": {"default_line_thickness": 6.0},
+            "legacy_lib_dir": "",
+            "legacy_lib_list": [],
+        },
+        "boards": [],
+        "text_variables": {},
+    }
+    return json.dumps(proj, indent=2) + "\n"
+
+
+def _gen_lib_table(table_type: str) -> str:
+    """Generate an empty sym-lib-table or fp-lib-table.
+
+    Args:
+        table_type: "sym_lib_table" or "fp_lib_table"
+    """
+    return f"({table_type})\n"
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
+def _generate_passive_wires(
+    components: list[ComponentPlacement],
+    nets: list[NetConnection],
+) -> list[str]:
+    """Generate wire segments connecting passive component pins to nearby labels.
+
+    For each passive (R, C, L), draws a short wire from pin 1 (top, y-3.81)
+    to the nearest label above, and from pin 2 (bottom, y+3.81) to the nearest
+    label below. Labels must be within 15mm to be considered "nearby".
+    """
+    wires: list[str] = []
+
+    passive_bases = {"R", "C", "L"}
+    for comp in components:
+        lib_base = comp.lib_id.split(":")[-1] if ":" in comp.lib_id else comp.lib_id
+        if lib_base not in passive_bases:
+            continue
+
+        cx, cy = comp.position
+        pin1_y = cy - 3.81  # top pin
+        pin2_y = cy + 3.81  # bottom pin
+
+        # Find labels near pin 1 (above component)
+        best_above = None
+        best_above_dist = 15.0
+        for net in nets:
+            nx, ny = net.position
+            dist = abs(nx - cx) + abs(ny - pin1_y)
+            if dist < best_above_dist:
+                best_above = net
+                best_above_dist = dist
+
+        if best_above:
+            wires.append(_gen_wire(cx, pin1_y, best_above.position[0], best_above.position[1]))
+
+        # Find labels near pin 2 (below component)
+        best_below = None
+        best_below_dist = 15.0
+        for net in nets:
+            nx, ny = net.position
+            dist = abs(nx - cx) + abs(ny - pin2_y)
+            if dist < best_below_dist:
+                best_below = net
+                best_below_dist = dist
+
+        if best_below:
+            wires.append(_gen_wire(cx, pin2_y, best_below.position[0], best_below.position[1]))
+
+    return wires
+
 
 def generate_schematic(
     components: list[ComponentPlacement],
@@ -418,6 +502,9 @@ def generate_schematic(
     # Generate net labels
     label_lines = "\n".join(_gen_label(n) for n in nets)
 
+    # Generate wires connecting passives to labels
+    wire_lines = "\n".join(_generate_passive_wires(components, nets))
+
     return f"""(kicad_sch
 \t(version 20250114)
 \t(generator "hardware-pipeline")
@@ -428,6 +515,7 @@ def generate_schematic(
 \t\t{lib_symbols}
 \t)
 {label_lines}
+{wire_lines}
 {comp_lines}
 \t(sheet_instances
 \t\t(path "/"
@@ -499,13 +587,21 @@ def generate_hierarchical_project(
 """
 
     result: dict[str, str] = {}
-    root_filename = root_title.replace(" ", "_").lower() + ".kicad_sch"
+    project_base = root_title.replace(" ", "_").lower()
+    root_filename = project_base + ".kicad_sch"
     result[root_filename] = root_content
 
     # Generate sub-sheets
     for filename, sc in sheets.items():
         content = _generate_sub_sheet(sc, project_name, all_lib_ids)
         result[filename] = content
+
+    # Generate .kicad_pro (minimal project file)
+    result[project_base + ".kicad_pro"] = _gen_project_file()
+
+    # Generate sym-lib-table and fp-lib-table (empty, using global libs)
+    result["sym-lib-table"] = _gen_lib_table("sym_lib_table")
+    result["fp-lib-table"] = _gen_lib_table("fp_lib_table")
 
     return result
 
@@ -532,11 +628,19 @@ def _generate_sub_sheet(
     # Net labels
     label_lines = "\n".join(_gen_label(n) for n in sc.nets)
 
-    # Hierarchical labels
+    # Hierarchical labels — spread vertically along left edge
+    hlabel_x = 25.4
+    hlabel_y_start = 30.0
+    hlabel_spacing = 7.62
     hlabel_lines = "\n".join(
-        _gen_hierarchical_label(name, direction)
-        for name, direction in sc.hierarchical_labels
+        _gen_hierarchical_label(name, direction,
+                                x=hlabel_x,
+                                y=hlabel_y_start + i * hlabel_spacing)
+        for i, (name, direction) in enumerate(sc.hierarchical_labels)
     )
+
+    # Generate wires connecting passives to labels
+    wire_lines = "\n".join(_generate_passive_wires(sc.components, sc.nets))
 
     return f"""(kicad_sch
 \t(version 20250114)
@@ -549,6 +653,7 @@ def _generate_sub_sheet(
 \t)
 {hlabel_lines}
 {label_lines}
+{wire_lines}
 {comp_lines}
 \t(sheet_instances
 \t\t(path "/"

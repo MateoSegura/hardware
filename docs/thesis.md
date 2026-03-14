@@ -124,7 +124,7 @@ Available in KiCad 9. Key commands for our pipeline:
 | `kicad-cli pcb export pos` | Pick-and-place position file (for LumenPNP) |
 | `kicad-cli pcb export drill` | Drill files |
 
-**Status:** Not installed on dev machine. Must be added to devcontainer.
+**Status:** Installed — kicad-cli 9.0.7 at `/usr/bin/kicad-cli`, runs headless.
 
 ---
 
@@ -215,7 +215,7 @@ For a BGA MCU like i.MX RT1050 (196 pins), split into:
 
 | Source | URL | ~Projects | Complexity | License | Key Value |
 |--------|-----|-----------|------------|---------|-----------|
-| **Antmicro** | github.com/antmicro | 30-50+ | Very High | Apache 2.0 | FPGA/SoM carrier boards, hierarchical, custom libs |
+| **Antmicro** | github.com/antmicro | 1 cloned (many more available) | Very High | Apache 2.0 | FPGA/SoM carrier boards, hierarchical, custom libs |
 | **Olimex** | github.com/OLIMEX | 20+ | Simple → Very High | CERN OHL v2 | iMX8 SBCs, ESP32 boards, 20+ years OSHW |
 | **Great Scott Gadgets** | github.com/greatscottgadgets | 5-8 | Very High | GPL v2 | HackRF (7.7K stars), RF design, controlled impedance |
 | **MNT Research** | source.mnt.re/reform/reform | 7 PCBs | Very High | CERN OHL v2 | Full laptop, DDR routing, multi-board system |
@@ -534,10 +534,34 @@ TASK-029: 3D enclosure generation (CadQuery/OpenSCAD)
 
 ## 10. Open Questions
 
-- [ ] Does kiutils handle all KiCad 9 edge cases? (tested on KiCad 6 + synthetic KiCad 9)
+- [x] Does kiutils handle all KiCad 9 edge cases? — **Yes**, with 6 patches. All 13 KiCad 9 projects parse at 100%.
 - [ ] How many of the 40K RepoRecon repos have BOTH .kicad_sch and .kicad_pcb?
-- [ ] What's the actual distribution of KiCad versions across open-source projects?
-- [ ] Can kicad-cli run in Docker without X11? (needed for headless validation)
-- [ ] How to handle projects with custom symbols that reference global KiCad libraries?
+- [x] What's the actual distribution of KiCad versions across open-source projects? — KiCad 6: 31, KiCad 7: 23, KiCad 8: 11, KiCad 9: 13 (in our 110-project corpus)
+- [x] Can kicad-cli run in Docker without X11? — **Yes**. kicad-cli 9.0.7 runs headless, ERC produces JSON.
+- [x] How to handle projects with custom symbols that reference global KiCad libraries? — Silently parsed as-is. lib_id strings stored without resolution. Acceptable for pattern extraction.
 - [ ] What's the best approach for KiCad 5 → 9 format conversion in batch?
-- [ ] SKiDL vs direct S-expression generation for the output side — which is more maintainable?
+- [x] SKiDL vs direct S-expression generation for the output side — **Direct S-expression**. Avoids SKiDL's layout-destroying limitation.
+
+## 11. Honest Status Assessment (2026-03-14 Audit)
+
+### What's genuinely proven
+- **Parser**: 110/110 projects, 779 design units, 100% parse rate, KiCad 3-9
+- **kiutils patches**: 6 patches, all tested, KiCad 9 works
+- **Hierarchy walking**: Depth-2 tested, version-aware ref resolution
+- **Pattern extraction**: 1,014 subcircuits, 761 clusters, 437 IC families, 253 templates
+- **Code quality**: 809 tests, zero TODOs, clean architecture
+
+### What's not done yet
+- **Netlist round-trip validation** (TASK-007/008): Never implemented. `validate.py` wraps kicad-cli but there's no parse→regenerate→diff pipeline.
+- **Generated schematics**: Structural skeletons only — zero wires, 2-pin IC stubs, stacked components, 6 ERC errors.
+- **Datasheet parser**: Hardcoded ESP32-S3 fallback only. Claude CLI integration untested on other chips.
+- **Cluster labeling** (TASK-014): Not done.
+- **Manufacturing phase** (TASK-025-029): Entire phase not started.
+
+### Data corpus reality
+- 3,811 raw RepoRecon entries (filtered from ~48K by stars/recency)
+- 2,118 after hardware keyword filter
+- 110 cloned and parsed (10 pilot + 100 bulk)
+- 32/110 projects lack schematics (PCB-only)
+- Only 1 Antmicro project cloned (not "30-50+")
+- 6/10 original pilots are fully functional

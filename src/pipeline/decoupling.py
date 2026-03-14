@@ -13,6 +13,13 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from .classify import (
+    classify_component,
+    classify_passive_type,
+    extract_ic_family,
+    ComponentType,
+)
+
 
 # Minimum pin count to qualify as an "IC worth analyzing"
 IC_MIN_PINS = 20
@@ -38,11 +45,8 @@ def _is_capacitor(comp: dict) -> bool:
     """Check if a component is a capacitor."""
     lib_id = comp.get("lib_id", "")
     ref = comp.get("ref", "")
-    if _CAP_REF_RE.match(ref):
-        return True
-    if _CAP_LIB_RE.search(lib_id):
-        return True
-    return False
+    footprint = comp.get("footprint", "")
+    return classify_passive_type(lib_id, footprint, ref) == "C"
 
 
 def _extract_ic_family(lib_id: str, value: str) -> str:
@@ -216,7 +220,13 @@ def _process_project(
         sheet = comp.get("sheet_name", "")
         pin_count = comp.get("pin_count", 0)
 
-        if pin_count >= IC_MIN_PINS:
+        comp_type = classify_component(
+            lib_id=comp.get("lib_id", ""),
+            footprint=comp.get("footprint", ""),
+            ref=comp.get("ref", ""),
+            pad_count=pin_count,
+        )
+        if pin_count >= IC_MIN_PINS and comp_type == ComponentType.IC:
             ics_by_sheet[sheet].append(comp)
         elif _is_capacitor(comp):
             caps_by_sheet[sheet].append(comp)
@@ -225,7 +235,7 @@ def _process_project(
     for sheet, ics in ics_by_sheet.items():
         caps = caps_by_sheet.get(sheet, [])
         for ic in ics:
-            family = _extract_ic_family(ic.get("lib_id", ""), ic.get("value", ""))
+            family = extract_ic_family(ic.get("lib_id", ""), ic.get("value", ""))
             family_ic_count[family] += 1
 
             for cap in caps:

@@ -65,10 +65,11 @@ def test_compose_simple_design():
     assert '"Power"' in root_content
     assert '"MCU"' in root_content
 
-    # All files are valid S-expressions
+    # All .kicad_sch files are valid S-expressions
     for filename, content in result.files.items():
-        assert content.startswith("(kicad_sch"), f"{filename} doesn't start with (kicad_sch"
-        assert content.strip().endswith(")"), f"{filename} doesn't end with )"
+        if filename.endswith(".kicad_sch"):
+            assert content.startswith("(kicad_sch"), f"{filename} doesn't start with (kicad_sch"
+            assert content.strip().endswith(")"), f"{filename} doesn't end with )"
 
     # BOM is populated
     assert len(result.bom) > 0

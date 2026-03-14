@@ -181,7 +181,7 @@ def _extract_via_claude(pdf_path: Path) -> dict | None:
     # Strip markdown fences if present
     if text.startswith("```"):
         lines = text.split("\n")
-        lines = [l for l in lines if not l.startswith("```")]
+        lines = [line for line in lines if not line.startswith("```")]
         text = "\n".join(lines)
 
     try:
