@@ -95,6 +95,16 @@ class LayerInfo:
 
 
 @dataclass
+class PadInfo:
+    """A single pad on a footprint with its net assignment."""
+    number: str          # pad number/name (e.g., "1", "A4", "GND")
+    net_name: str        # assigned net name (e.g., "SPI_MOSI", "+3V3", "")
+    net_number: int      # net ordinal (0 = unconnected)
+    pad_type: str        # "smd", "thru_hole", "np_thru_hole", "connect"
+    position: tuple[float, float]  # x, y relative to footprint origin
+
+
+@dataclass
 class FootprintInfo:
     ref: str
     lib_id: str
@@ -102,6 +112,8 @@ class FootprintInfo:
     position: tuple[float, float, float]  # x, y, angle
     pad_count: int
     path: str  # hierarchical sheet path
+    value: str = ""
+    pads: list[PadInfo] = field(default_factory=list)
 
 
 @dataclass

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "tools"))
 from kiutils.board import Board
 from kiutils.items.brditems import Arc, Segment, Via
 
-from src.pipeline.models import FootprintInfo, LayerInfo, ParsedBoard
+from src.pipeline.models import FootprintInfo, LayerInfo, PadInfo, ParsedBoard
 
 
 def detect_version(path: Path) -> int | None:
@@ -39,6 +39,22 @@ def _get_footprint_ref(fp) -> str:
     # Fall back to graphicItems (KiCad 6/7)
     for gi in getattr(fp, "graphicItems", []):
         if getattr(gi, "type", None) == "reference":
+            return getattr(gi, "text", "")
+
+    return ""
+
+
+def _get_footprint_value(fp) -> str:
+    """Extract value from a footprint.
+
+    KiCad 8/9: Value is in fp.properties dict.
+    KiCad 6/7: Value is in fp.graphicItems as an FpText with type='value'.
+    """
+    if isinstance(fp.properties, dict) and "Value" in fp.properties:
+        return fp.properties["Value"]
+
+    for gi in getattr(fp, "graphicItems", []):
+        if getattr(gi, "type", None) == "value":
             return getattr(gi, "text", "")
 
     return ""
@@ -76,6 +92,23 @@ def parse_board(pcb_path: Path) -> ParsedBoard:
     footprints = []
     for fp in board.footprints:
         ref = _get_footprint_ref(fp)
+        value = _get_footprint_value(fp)
+
+        # Extract pad data
+        pads = []
+        for pad in fp.pads:
+            net = getattr(pad, "net", None)
+            pads.append(PadInfo(
+                number=pad.number or "",
+                net_name=net.name if net else "",
+                net_number=net.number if net else 0,
+                pad_type=getattr(pad, "type", "") or "",
+                position=(
+                    pad.position.X if hasattr(pad, "position") else 0.0,
+                    pad.position.Y if hasattr(pad, "position") else 0.0,
+                ),
+            ))
+
         footprints.append(FootprintInfo(
             ref=ref,
             lib_id=fp.libId or "",
@@ -87,6 +120,8 @@ def parse_board(pcb_path: Path) -> ParsedBoard:
             ),
             pad_count=len(fp.pads),
             path=fp.path or "",
+            value=value,
+            pads=pads,
         ))
 
     # Net classes

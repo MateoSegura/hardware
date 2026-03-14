@@ -8,7 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
 from src.pipeline.board import parse_board
-from src.pipeline.models import ParsedBoard
+from src.pipeline.models import PadInfo, ParsedBoard
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
@@ -174,3 +174,140 @@ def test_board_zones_hackrf(hackrf_board):
 
 def test_board_zones_nrfmicro(nrfmicro_board):
     assert nrfmicro_board.zone_count == 3
+
+
+# ---------------------------------------------------------------------------
+# Test 11: Pad extraction — STM32F7 board
+# ---------------------------------------------------------------------------
+
+def test_pad_extraction_stm32f7(stm32_board):
+    """Footprints should have pads with number and net_name populated."""
+    fps_with_pads = [fp for fp in stm32_board.footprints if fp.pads]
+    assert len(fps_with_pads) > 0
+
+    for fp in fps_with_pads:
+        for pad in fp.pads:
+            assert isinstance(pad, PadInfo)
+            assert isinstance(pad.number, str)
+            assert isinstance(pad.net_name, str)
+            assert isinstance(pad.net_number, int)
+
+
+# ---------------------------------------------------------------------------
+# Test 12: Pad net assignment — verify known MCU pads
+# ---------------------------------------------------------------------------
+
+def test_pad_net_assignment(stm32_board):
+    """U8 (STM32F722RET6) should have specific pads with known nets."""
+    u8 = next(fp for fp in stm32_board.footprints if fp.ref == "U8")
+    pad_map = {p.number: p.net_name for p in u8.pads}
+
+    assert pad_map["1"] == "+3V3"
+    assert pad_map["2"] == "GYRO_INT1"
+    assert u8.pad_count == 64
+    assert len(u8.pads) == 64
+
+
+# ---------------------------------------------------------------------------
+# Test 13: Pad count matches len(pads)
+# ---------------------------------------------------------------------------
+
+def test_pad_count_matches(stm32_board):
+    """For every footprint, len(pads) should equal pad_count."""
+    for fp in stm32_board.footprints:
+        assert len(fp.pads) == fp.pad_count, (
+            f"{fp.ref}: len(pads)={len(fp.pads)} != pad_count={fp.pad_count}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Test 14: Pad types are valid strings
+# ---------------------------------------------------------------------------
+
+def test_pad_types(stm32_board):
+    """All pad types should be recognized KiCad pad types."""
+    valid_types = {"smd", "thru_hole", "np_thru_hole", "connect"}
+    for fp in stm32_board.footprints:
+        for pad in fp.pads:
+            assert pad.pad_type in valid_types, (
+                f"{fp.ref} pad {pad.number}: unexpected type '{pad.pad_type}'"
+            )
+
+
+# ---------------------------------------------------------------------------
+# Test 15: Footprint value extraction
+# ---------------------------------------------------------------------------
+
+def test_footprint_value(stm32_board):
+    """Value field should be extracted from footprints."""
+    u8 = next(fp for fp in stm32_board.footprints if fp.ref == "U8")
+    assert u8.value == "STM32F722RET6"
+
+    # Capacitors and resistors should have values too
+    caps = [fp for fp in stm32_board.footprints if fp.ref.startswith("C") and fp.value]
+    assert len(caps) > 0, "Expected capacitors with values"
+
+    resistors = [fp for fp in stm32_board.footprints if fp.ref.startswith("R") and fp.value]
+    assert len(resistors) > 0, "Expected resistors with values"
+
+
+# ---------------------------------------------------------------------------
+# Test 16: Pad extraction — HackRF (KiCad 6)
+# ---------------------------------------------------------------------------
+
+def test_pad_extraction_hackrf(hackrf_board):
+    """HackRF board pads should be extracted with valid data."""
+    fps_with_pads = [fp for fp in hackrf_board.footprints if fp.pads]
+    assert len(fps_with_pads) > 0
+
+    # Verify pad count consistency
+    for fp in fps_with_pads:
+        assert len(fp.pads) == fp.pad_count
+
+    # Should have both smd and thru_hole pads
+    all_types = {p.pad_type for fp in hackrf_board.footprints for p in fp.pads}
+    assert "smd" in all_types
+    assert "thru_hole" in all_types
+
+
+# ---------------------------------------------------------------------------
+# Test 17: Pad extraction — Antmicro (KiCad 9)
+# ---------------------------------------------------------------------------
+
+def test_pad_extraction_antmicro(antmicro_board):
+    """Antmicro (KiCad 9) board pads should be extracted correctly."""
+    fps_with_pads = [fp for fp in antmicro_board.footprints if fp.pads]
+    assert len(fps_with_pads) > 0
+
+    for fp in fps_with_pads:
+        assert len(fp.pads) == fp.pad_count
+
+    # KiCad 9 board has diverse pad types
+    all_types = {p.pad_type for fp in antmicro_board.footprints for p in fp.pads}
+    assert "smd" in all_types
+
+    # Values should be extracted via properties dict (KiCad 9)
+    vals = [fp for fp in antmicro_board.footprints if fp.value]
+    assert len(vals) > 100
+
+
+# ---------------------------------------------------------------------------
+# Test 18: Pad extraction — nrfmicro (simple board)
+# ---------------------------------------------------------------------------
+
+def test_pad_extraction_nrfmicro(nrfmicro_board):
+    """nrfmicro pads should be extracted from this simple 2-layer board."""
+    fps_with_pads = [fp for fp in nrfmicro_board.footprints if fp.pads]
+    assert len(fps_with_pads) > 0
+
+    for fp in fps_with_pads:
+        assert len(fp.pads) == fp.pad_count
+
+    # Should have both thru_hole and smd
+    all_types = {p.pad_type for fp in nrfmicro_board.footprints for p in fp.pads}
+    assert "thru_hole" in all_types
+    assert "smd" in all_types
+
+    # Values should be populated
+    vals = [fp for fp in nrfmicro_board.footprints if fp.value]
+    assert len(vals) == 25  # all 25 footprints have values
