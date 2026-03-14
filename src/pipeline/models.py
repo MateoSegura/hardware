@@ -139,3 +139,25 @@ class ParsedProject:
     all_components: list[ParsedComponent] = field(default_factory=list)
     all_nets: dict[str, NetInfo] = field(default_factory=dict)
     stats: dict = field(default_factory=dict)
+
+
+@dataclass
+class Subcircuit:
+    """An IC and its supporting passive components."""
+    center_ref: str              # e.g., "U1"
+    center_lib_id: str           # e.g., "Regulator_Linear:MCP1700"
+    center_value: str
+    supporting_components: list[str] = field(default_factory=list)  # refs of connected passives
+    connected_nets: list[str] = field(default_factory=list)         # nets involved
+    fingerprint: str = ""        # hash of topology
+    sheet: str = ""              # which sheet this is on
+
+
+@dataclass
+class SubcircuitCluster:
+    """A group of subcircuits sharing the same topology fingerprint."""
+    fingerprint: str
+    count: int
+    label: str = ""              # human-readable name (e.g., "LDO circuit")
+    instances: list[Subcircuit] = field(default_factory=list)
+    canonical_components: list[str] = field(default_factory=list)  # component types in this topology
