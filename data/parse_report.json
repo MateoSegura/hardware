@@ -1,0 +1,556 @@
+{
+  "success": [
+    {
+      "name": "BlueSCSI__BlueSCSI-v2",
+      "time": 1.0,
+      "units": 5
+    },
+    {
+      "name": "CRImier__MyKiCad",
+      "time": 8.8,
+      "units": 151
+    },
+    {
+      "name": "Chrismettal__flipper-zero-backpacks",
+      "time": 0.4,
+      "units": 5
+    },
+    {
+      "name": "Duet3D__Duet-2-Hardware",
+      "time": 5.0,
+      "units": 15
+    },
+    {
+      "name": "DustinWatts__esp32-touchdown",
+      "time": 0.2,
+      "units": 2
+    },
+    {
+      "name": "GEIGEIGEIST__KLOR",
+      "time": 1.8,
+      "units": 1
+    },
+    {
+      "name": "GEIGEIGEIST__TOTEM",
+      "time": 0.8,
+      "units": 1
+    },
+    {
+      "name": "Gekkio__gb-hardware",
+      "time": 1.2,
+      "units": 16
+    },
+    {
+      "name": "Gekkio__gb-schematics",
+      "time": 0.8,
+      "units": 14
+    },
+    {
+      "name": "Green-bms__SmartBMS",
+      "time": 0.1,
+      "units": 3
+    },
+    {
+      "name": "Hanqaqa__PCB_Business_Card",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "Jana-Marie__Otter-Iron-PRO",
+      "time": 0.2,
+      "units": 8
+    },
+    {
+      "name": "Jean-MarcHarvengt__MCUME",
+      "time": 0.2,
+      "units": 17
+    },
+    {
+      "name": "KCORES__KCORES-CSPS-to-ATX-Converter",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "Miceuz__PlantWateringAlarm",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "Neotron-Compute__Neotron-Pico",
+      "time": 0.8,
+      "units": 1
+    },
+    {
+      "name": "Neumi__ethersweep",
+      "time": 1.8,
+      "units": 5
+    },
+    {
+      "name": "OLIMEX__ESP32-GATEWAY",
+      "time": 1.0,
+      "units": 9
+    },
+    {
+      "name": "Open-Smartwatch__open-smartwatch-gps",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "Redherring32__OpenTendo",
+      "time": 0.7,
+      "units": 2
+    },
+    {
+      "name": "SimonMerrett__SOICbite",
+      "time": 0.0,
+      "units": 2
+    },
+    {
+      "name": "SolidHal__btrfld",
+      "time": 0.2,
+      "units": 8
+    },
+    {
+      "name": "SukkoPera__Raemixx500",
+      "time": 1.1,
+      "units": 1
+    },
+    {
+      "name": "TUDSSL__ENGAGE",
+      "time": 0.2,
+      "units": 2
+    },
+    {
+      "name": "Twisted-Fields__rp2040-motor-controller",
+      "time": 1.4,
+      "units": 5
+    },
+    {
+      "name": "UnexpectedMaker__esp32s3",
+      "time": 0.3,
+      "units": 3
+    },
+    {
+      "name": "Wren6991__RISCBoy",
+      "time": 0.3,
+      "units": 5
+    },
+    {
+      "name": "adamws__kicad-kbplacer",
+      "time": 0.2,
+      "units": 23
+    },
+    {
+      "name": "amachronic__echoplayer",
+      "time": 1.3,
+      "units": 3
+    },
+    {
+      "name": "antmicro__jetson-nano-baseboard",
+      "time": 4.7,
+      "units": 1
+    },
+    {
+      "name": "anywhy-io__flake",
+      "time": 1.5,
+      "units": 2
+    },
+    {
+      "name": "apfaudio__eurorack-pmod",
+      "time": 2.3,
+      "units": 8
+    },
+    {
+      "name": "apoluekt__OpenRPNCalc",
+      "time": 0.6,
+      "units": 21
+    },
+    {
+      "name": "ashtf8__PocketMage_PDA",
+      "time": 4.6,
+      "units": 16
+    },
+    {
+      "name": "baldengineer__bit-preserve",
+      "time": 7.8,
+      "units": 42
+    },
+    {
+      "name": "bbenchoff__OrthoRoute",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "beekeeb__piantor",
+      "time": 0.6,
+      "units": 2
+    },
+    {
+      "name": "bitcraze__crazyflie-electronics",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "bschwind__key-ripper",
+      "time": 3.0,
+      "units": 3
+    },
+    {
+      "name": "cheyao__icepi-sbc",
+      "time": 1.2,
+      "units": 1
+    },
+    {
+      "name": "dangiu__PicoMemcard",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "dcpedit__redherring",
+      "time": 2.3,
+      "units": 4
+    },
+    {
+      "name": "devbisme__skidl",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "dojoe__Twonkie",
+      "time": 0.2,
+      "units": 1
+    },
+    {
+      "name": "duckyb__urchin",
+      "time": 0.6,
+      "units": 3
+    },
+    {
+      "name": "ebastler__marbastlib",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "emard__ulx3s",
+      "time": 0.6,
+      "units": 1
+    },
+    {
+      "name": "enaccess__cicada-gsm-hw",
+      "time": 0.4,
+      "units": 2
+    },
+    {
+      "name": "esp-rs__esp-rust-board",
+      "time": 0.3,
+      "units": 1
+    },
+    {
+      "name": "espotek-org__Labrador",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "famichu__MagLev_Switch_MX",
+      "time": 0.6,
+      "units": 2
+    },
+    {
+      "name": "fossasia__pslab-hardware",
+      "time": 1.0,
+      "units": 5
+    },
+    {
+      "name": "gcormier__megadesk",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "greatscottgadgets__hackrf",
+      "time": 1.5,
+      "units": 5
+    },
+    {
+      "name": "gusmanb__logicanalyzer",
+      "time": 0.6,
+      "units": 5
+    },
+    {
+      "name": "iMike78__nest-mini-drop-in-pcb",
+      "time": 0.8,
+      "units": 1
+    },
+    {
+      "name": "imchipwood__dumbpad",
+      "time": 1.2,
+      "units": 3
+    },
+    {
+      "name": "joric__nrfmicro",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "jotego__jtcores",
+      "time": 25.4,
+      "units": 59
+    },
+    {
+      "name": "kinx-project__kint",
+      "time": 0.3,
+      "units": 1
+    },
+    {
+      "name": "kiswitch__kiswitch",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "krakrukra__PocketAdmin",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "libresolar__mppt-2420-lc",
+      "time": 0.3,
+      "units": 1
+    },
+    {
+      "name": "maxlab-io__tokay-lite-pcb",
+      "time": 3.8,
+      "units": 6
+    },
+    {
+      "name": "mebs__CM4-NAS",
+      "time": 0.5,
+      "units": 1
+    },
+    {
+      "name": "mentalDetector__Quansheng_UV-K5_PCB_R51-V1.4_PCB_Reversing_Rev._0.9",
+      "time": 1.8,
+      "units": 2
+    },
+    {
+      "name": "mixelpixx__KiCAD-MCP-Server",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "mmccoyd__hillside",
+      "time": 1.4,
+      "units": 3
+    },
+    {
+      "name": "mnt__reform",
+      "time": 10.8,
+      "units": 19
+    },
+    {
+      "name": "ncarandini__KiCad-RP-Pico",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "nkitanov__iaq_board",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "ohmtech-rdi__eurorack-blocks",
+      "time": 0.8,
+      "units": 82
+    },
+    {
+      "name": "oxplot__fpx",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "paltatech__VESC-controller",
+      "time": 0.5,
+      "units": 2
+    },
+    {
+      "name": "partcad__partcad",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "pashutk__chocofi",
+      "time": 0.4,
+      "units": 2
+    },
+    {
+      "name": "pierrechevalier83__ferris",
+      "time": 1.5,
+      "units": 18
+    },
+    {
+      "name": "raeedcho__temper",
+      "time": 0.3,
+      "units": 2
+    },
+    {
+      "name": "rasteri__HIDman",
+      "time": 0.3,
+      "units": 6
+    },
+    {
+      "name": "rbaron__b-parasite",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "rene-dev__stmbl",
+      "time": 1.6,
+      "units": 18
+    },
+    {
+      "name": "rishikesh2715__stm32f7-fc",
+      "time": 0.5,
+      "units": 1
+    },
+    {
+      "name": "schlae__scopetrex",
+      "time": 0.8,
+      "units": 2
+    },
+    {
+      "name": "scottbez1__splitflap",
+      "time": 0.3,
+      "units": 7
+    },
+    {
+      "name": "skiselev__micro_8088",
+      "time": 0.2,
+      "units": 1
+    },
+    {
+      "name": "skot__bitaxe",
+      "time": 0.3,
+      "units": 1
+    },
+    {
+      "name": "skuep__AIOC",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "soulscircuit__pilet",
+      "time": 0.2,
+      "units": 1
+    },
+    {
+      "name": "speeduino__Hardware",
+      "time": 2.3,
+      "units": 13
+    },
+    {
+      "name": "stack-chan__stack-chan",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "staticintlucas__goldfish",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "stuartpittaway__diyBMSv4",
+      "time": 2.0,
+      "units": 13
+    },
+    {
+      "name": "sudomesh__disaster-radio",
+      "time": 0.4,
+      "units": 7
+    },
+    {
+      "name": "system76__launch",
+      "time": 6.0,
+      "units": 5
+    },
+    {
+      "name": "tenderlove__esp8266aq",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "tinfever__FW-Dyson-BMS",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "tinyfpga__TinyFPGA-BX",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "torvalds__1590A",
+      "time": 0.8,
+      "units": 9
+    },
+    {
+      "name": "torvalds__GuitarPedal",
+      "time": 0.7,
+      "units": 6
+    },
+    {
+      "name": "tvlad1234__linux-ch32v003",
+      "time": 0.0,
+      "units": 1
+    },
+    {
+      "name": "tzarc__keyboards",
+      "time": 3.1,
+      "units": 9
+    },
+    {
+      "name": "upsidedownlabs__BioAmp-EXG-Pill",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "vedderb__bldc-hardware",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "wareya__DIY-Gaming-Mouse",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "whowechina__mai_pico",
+      "time": 0.2,
+      "units": 2
+    },
+    {
+      "name": "will127534__IMU_Array",
+      "time": 1.2,
+      "units": 3
+    },
+    {
+      "name": "will127534__OneInchEye",
+      "time": 0.3,
+      "units": 1
+    },
+    {
+      "name": "yaqwsx__PcbDraw",
+      "time": 0.1,
+      "units": 2
+    },
+    {
+      "name": "yaqwsx__Pinion",
+      "time": 0.1,
+      "units": 1
+    },
+    {
+      "name": "zhiayang__mikoto",
+      "time": 0.3,
+      "units": 2
+    }
+  ],
+  "failed": [],
+  "skipped": []
+}
