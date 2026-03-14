@@ -144,7 +144,7 @@ Parse time: 137s total.
 ### 3.5 Template generation
 - [x] Build canonical templates from largest clusters — 30 cluster + 223 decoupling = 253 templates
 - [x] Output: data/patterns/templates/ (summary + individual JSON)
-- [ ] Validate templates (ERC + netlist check via kicad-cli)
+- [x] Validate templates (ERC + netlist check via kicad-cli) — 253/253 validated
 
 ### PHASE 3 DONE CRITERIA
 Circuit pattern database populated. 253 reusable templates generated.
