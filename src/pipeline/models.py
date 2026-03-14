@@ -161,3 +161,26 @@ class SubcircuitCluster:
     label: str = ""              # human-readable name (e.g., "LDO circuit")
     instances: list[Subcircuit] = field(default_factory=list)
     canonical_components: list[str] = field(default_factory=list)  # component types in this topology
+
+
+@dataclass
+class TemplatePassive:
+    """A passive component slot in a circuit template."""
+    ref_prefix: str              # "C" or "R" or "L"
+    typical_value: str           # "100nF"
+    typical_footprint: str       # "C_0402"
+    connection_type: str         # "power_bypass", "signal_filter", "pullup", etc.
+    count_in_template: int       # how many of this passive per instance
+
+
+@dataclass
+class CircuitTemplate:
+    """A reusable circuit pattern extracted from clustered subcircuits."""
+    name: str                    # e.g., "LDO_SOT23-5_bypass"
+    description: str
+    center_ic_lib_id: str
+    center_ic_footprint: str
+    passives: list[TemplatePassive] = field(default_factory=list)
+    source_count: int = 0
+    source_projects: list[str] = field(default_factory=list)
+    fingerprint: str = ""
