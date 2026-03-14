@@ -1,0 +1,139 @@
+{
+  "datasheets": [
+    {
+      "chip": "ESP32-WROOM-32",
+      "file": "esp32-wroom-32.pdf",
+      "lcsc": "C82899",
+      "type": "module",
+      "source": "datasheet.lcsc.com",
+      "language": "en",
+      "size_kb": 683
+    },
+    {
+      "chip": "ESP32-WROOM-32E",
+      "file": "esp32-wroom-32e.pdf",
+      "lcsc": "C701341",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "zh",
+      "size_kb": 1626
+    },
+    {
+      "chip": "ESP32-S2-WROOM",
+      "file": "esp32-s2-wroom.pdf",
+      "lcsc": "C967026",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1508
+    },
+    {
+      "chip": "ESP32-S3-WROOM-1",
+      "file": "esp32-s3-wroom-1.pdf",
+      "lcsc": "C2913202",
+      "type": "module",
+      "source": "datasheet.lcsc.com",
+      "language": "en",
+      "size_kb": 1559
+    },
+    {
+      "chip": "ESP32-S3-MINI-1",
+      "file": "esp32-s3-mini-1.pdf",
+      "lcsc": "C2913238",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1613
+    },
+    {
+      "chip": "ESP32-C3-WROOM-02",
+      "file": "esp32-c3-wroom-02.pdf",
+      "lcsc": "C2934560",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1317
+    },
+    {
+      "chip": "ESP32-C3-MINI-1",
+      "file": "esp32-c3-mini-1.pdf",
+      "lcsc": "C2838502",
+      "type": "module",
+      "source": "datasheet.lcsc.com",
+      "language": "en",
+      "size_kb": 1336
+    },
+    {
+      "chip": "ESP32-C6-WROOM-1",
+      "file": "esp32-c6-wroom-1.pdf",
+      "lcsc": "C5366877",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1154
+    },
+    {
+      "chip": "ESP32-H2-MINI-1",
+      "file": "esp32-h2-mini-1.pdf",
+      "lcsc": "C18203146",
+      "type": "module",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1524
+    },
+    {
+      "chip": "ESP32",
+      "file": "esp32.pdf",
+      "lcsc": "C129733",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1420
+    },
+    {
+      "chip": "ESP32-S2",
+      "file": "esp32-s2.pdf",
+      "lcsc": "C2844252",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1235
+    },
+    {
+      "chip": "ESP32-S3",
+      "file": "esp32-s3.pdf",
+      "lcsc": "C2913196",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "zh",
+      "size_kb": 1678
+    },
+    {
+      "chip": "ESP32-C3",
+      "file": "esp32-c3.pdf",
+      "lcsc": "C2848860",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1054
+    },
+    {
+      "chip": "ESP32-C6",
+      "file": "esp32-c6.pdf",
+      "lcsc": "C5364646",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1498
+    },
+    {
+      "chip": "ESP32-H2",
+      "file": "esp32-h2.pdf",
+      "lcsc": "C22470214",
+      "type": "chip",
+      "source": "atta.szlcsc.com",
+      "language": "en",
+      "size_kb": 1257
+    }
+  ]
+}
