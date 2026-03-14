@@ -33,6 +33,22 @@ _PASSIVE_FP_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
+# Components that should never be subcircuit centers (mechanical, non-electrical).
+_EXCLUDED_CENTER_LIB = re.compile(
+    r"MountingHole|TestPoint|Fiducial"
+    r"|Switch|Key|MX|Choc|Cherry",
+    re.IGNORECASE,
+)
+_EXCLUDED_CENTER_FP = re.compile(
+    r"MountingHole|TestPoint|Fiducial"
+    r"|SW_|Key_|MX[-_]|Choc|Cherry",
+    re.IGNORECASE,
+)
+_EXCLUDED_CENTER_REF = re.compile(
+    r"^(H|TP|FID|MH)\d",
+    re.IGNORECASE,
+)
+
 # Net names to exclude (power/ground nets connect everything).
 _POWER_NET_PATTERN = re.compile(
     r"^("
@@ -70,6 +86,21 @@ def _is_passive(lib_id: str, footprint_name: str, ref: str = "") -> bool:
         return True
     # Fall back to reference designator prefix (R1, C42, L3, FB1)
     if ref and re.match(r"^(R|C|L|FB)\d+$", ref):
+        return True
+    return False
+
+
+def _is_excluded_center(lib_id: str, fp_name: str, ref: str) -> bool:
+    """Check if a component should be excluded as a subcircuit center.
+
+    Excludes mounting holes, test points, fiducials, keyboard switches,
+    and other mechanical/non-electrical components.
+    """
+    if _EXCLUDED_CENTER_LIB.search(lib_id):
+        return True
+    if _EXCLUDED_CENTER_FP.search(fp_name):
+        return True
+    if ref and _EXCLUDED_CENTER_REF.match(ref):
         return True
     return False
 
@@ -130,12 +161,18 @@ def _compute_fingerprint(
 ) -> str:
     """Compute a deterministic fingerprint for a subcircuit topology.
 
-    The fingerprint is based on the center IC's lib_id and a sorted list
-    of passive component types and values.
+    The fingerprint is based on the center IC's lib_id and a sorted count
+    of passive component types (ignoring specific values, so that e.g.
+    100nF vs 10uF caps produce the same fingerprint).
     """
+    # Count passive types (e.g., 3xC, 2xR, 1xL) instead of listing each value
+    type_counts: dict[str, int] = defaultdict(int)
+    for ptype, _pvalue in supporting:
+        type_counts[ptype] += 1
+
     parts = [center_lib_id]
-    for ptype, pvalue in sorted(supporting):
-        parts.append(f"{ptype}:{pvalue}")
+    for ptype in sorted(type_counts):
+        parts.append(f"{type_counts[ptype]}x{ptype}")
     fingerprint_str = "|".join(parts)
     return hashlib.sha256(fingerprint_str.encode()).hexdigest()[:16]
 
@@ -183,8 +220,12 @@ def detect_subcircuits(pcb_path: Path) -> list[Subcircuit]:
             continue
 
         lib_id = ref_to_lib_id.get(ref, "")
+        fp_name = ref_to_fp_name.get(ref, "")
         # Skip if this is actually a passive (some passives have many pads, e.g., R_Pack)
-        if _is_passive(lib_id, ref_to_fp_name.get(ref, ""), ref):
+        if _is_passive(lib_id, fp_name, ref):
+            continue
+        # Skip mechanical/non-electrical components (mounting holes, switches, etc.)
+        if _is_excluded_center(lib_id, fp_name, ref):
             continue
 
         if ref in seen_ic_refs:

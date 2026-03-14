@@ -12,6 +12,7 @@ from kiutils.board import Board
 from src.pipeline.subcircuits import (
     IC_PIN_THRESHOLD,
     _get_ref_from_footprint,
+    _is_excluded_center,
     _is_passive,
     cluster_subcircuits,
     detect_subcircuits,
@@ -204,3 +205,65 @@ def test_cluster_canonical_components(stm32_clusters):
         assert len(cl.canonical_components) > 0
         # First entry should be the center IC's lib_id
         assert cl.canonical_components[0] != ""
+
+
+# ---------------------------------------------------------------------------
+# Test: Excluded center filters
+# ---------------------------------------------------------------------------
+
+class TestExcludedCenters:
+    """MountingHoles, test points, fiducials, and switches must not be centers."""
+
+    def test_mounting_hole_excluded(self):
+        assert _is_excluded_center("MountingHole:MountingHole_3.2mm", "", "H1")
+        assert _is_excluded_center("", "MountingHole_3.2mm_M3_Pad_Via", "H2")
+
+    def test_test_point_excluded(self):
+        assert _is_excluded_center("TestPoint:TestPoint", "", "TP1")
+        assert _is_excluded_center("", "TestPoint", "TP3")
+
+    def test_fiducial_excluded(self):
+        assert _is_excluded_center("", "Fiducial_1mm", "FID1")
+        assert _is_excluded_center("Fiducial:Fiducial_1mm", "", "FID2")
+
+    def test_keyboard_switch_excluded(self):
+        assert _is_excluded_center("Switch:SW_Push", "", "SW1")
+        assert _is_excluded_center("", "SW_Cherry_MX", "SW2")
+        assert _is_excluded_center("Ghoul:MX-1U-Hotswap", "", "SW3")
+        assert _is_excluded_center("", "Choc_v1_HS", "SW4")
+        assert _is_excluded_center("Cherry:Cherry_MX", "", "SW5")
+
+    def test_real_ic_not_excluded(self):
+        assert not _is_excluded_center("Regulator_Linear:MCP1700", "SOT-23", "U1")
+        assert not _is_excluded_center("MCU_ST:STM32F722", "LQFP-64", "U8")
+        assert not _is_excluded_center("", "QFP-144", "U23")
+
+
+def test_no_mounting_holes_in_subcircuits(stm32_subcircuits):
+    """No subcircuit center should be a mounting hole."""
+    for sc in stm32_subcircuits:
+        assert not sc.center_ref.startswith("H"), (
+            f"Mounting hole {sc.center_ref} is a subcircuit center"
+        )
+
+
+def test_no_switches_in_subcircuits(stm32_subcircuits):
+    """No subcircuit center should be a switch."""
+    for sc in stm32_subcircuits:
+        assert not sc.center_ref.startswith("SW"), (
+            f"Switch {sc.center_ref} is a subcircuit center"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Test: Type-only fingerprint (values ignored)
+# ---------------------------------------------------------------------------
+
+def test_same_topology_different_values_cluster(stm32_clusters):
+    """Two LDOs with same type counts but different cap values should cluster."""
+    for cl in stm32_clusters:
+        refs = {inst.center_ref for inst in cl.instances}
+        if "U6" in refs and "U7" in refs:
+            assert cl.count == 2
+            return
+    pytest.fail("U6 and U7 should still cluster with type-only fingerprints")
