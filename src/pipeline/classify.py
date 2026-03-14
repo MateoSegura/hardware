@@ -63,7 +63,8 @@ _PASSIVE_REF_RE = re.compile(r"^(R|C|L|FB)\d+$")
 
 # Connector patterns
 _CONNECTOR_LIB_RE = re.compile(
-    r"Connector:|Connector_Generic:|Connector_USB:|Connector_RJ:",
+    r"Connector:|Connector_Generic:|Connector_USB:|Connector_RJ:"
+    r"|Connector_Generic_MountingPin:",
     re.IGNORECASE,
 )
 _CONNECTOR_FP_RE = re.compile(
@@ -71,6 +72,12 @@ _CONNECTOR_FP_RE = re.compile(
     re.IGNORECASE,
 )
 _CONNECTOR_REF_RE = re.compile(r"^J\d+$")
+
+# Additional connector detection: part name (after colon) contains connector keywords
+_CONNECTOR_PART_RE = re.compile(
+    r"(?:^|:)(?:Conn_|CONN_|Connector_|JAMMA|Arduino_.*Shield|.*_Connector$|.*_conn)",
+    re.IGNORECASE,
+)
 
 # Mechanical patterns (mounting holes, test points, fiducials)
 _MECHANICAL_LIB_RE = re.compile(
@@ -124,6 +131,8 @@ def classify_component(
 
     # Connectors
     if _CONNECTOR_LIB_RE.search(lib_id):
+        return ComponentType.CONNECTOR
+    if _CONNECTOR_PART_RE.search(lib_id):
         return ComponentType.CONNECTOR
     if _CONNECTOR_FP_RE.search(footprint):
         return ComponentType.CONNECTOR

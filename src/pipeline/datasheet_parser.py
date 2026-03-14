@@ -273,6 +273,149 @@ def _esp32s3_wroom1_fallback() -> dict:
     }
 
 
+def _esp32c3_mini1_fallback() -> dict:
+    """Return a hardcoded extraction for the ESP32-C3-MINI-1 module.
+
+    Pin data sourced from the ESP32-C3-MINI-1 datasheet v1.7, Table 3.
+    The module has 53 physical pads but only 17 unique signal pins
+    (the rest are GND or NC).  We list every unique signal pin plus
+    representative GND and EPAD entries.
+    """
+    pins = [
+        {"number": "1",  "name": "GND",   "type": "P",   "functions": [],                                       "group": "Power"},
+        {"number": "2",  "name": "GND",   "type": "P",   "functions": [],                                       "group": "Power"},
+        {"number": "3",  "name": "3V3",   "type": "P",   "functions": [],                                       "group": "Power"},
+        {"number": "5",  "name": "IO2",   "type": "I/O/T", "functions": ["ADC1_CH2", "FSPIQ"],                   "group": "GPIO"},
+        {"number": "6",  "name": "IO3",   "type": "I/O/T", "functions": ["ADC1_CH3"],                            "group": "GPIO"},
+        {"number": "8",  "name": "EN",    "type": "I",   "functions": ["CHIP_EN"],                               "group": "Control"},
+        {"number": "12", "name": "IO0",   "type": "I/O/T", "functions": ["ADC1_CH0", "XTAL_32K_P"],              "group": "GPIO"},
+        {"number": "13", "name": "IO1",   "type": "I/O/T", "functions": ["ADC1_CH1", "XTAL_32K_N"],              "group": "GPIO"},
+        {"number": "16", "name": "IO10",  "type": "I/O/T", "functions": ["FSPICS0"],                             "group": "SPI"},
+        {"number": "18", "name": "IO4",   "type": "I/O/T", "functions": ["ADC1_CH4", "FSPIHD", "MTMS"],          "group": "JTAG"},
+        {"number": "19", "name": "IO5",   "type": "I/O/T", "functions": ["ADC2_CH0", "FSPIWP", "MTDI"],          "group": "JTAG"},
+        {"number": "20", "name": "IO6",   "type": "I/O/T", "functions": ["FSPICLK", "MTCK"],                     "group": "JTAG"},
+        {"number": "21", "name": "IO7",   "type": "I/O/T", "functions": ["FSPID", "MTDO"],                       "group": "JTAG"},
+        {"number": "22", "name": "IO8",   "type": "I/O/T", "functions": [],                                      "group": "GPIO"},
+        {"number": "23", "name": "IO9",   "type": "I/O/T", "functions": [],                                      "group": "GPIO"},
+        {"number": "26", "name": "IO18",  "type": "I/O/T", "functions": ["USB_D-"],                              "group": "USB"},
+        {"number": "27", "name": "IO19",  "type": "I/O/T", "functions": ["USB_D+"],                              "group": "USB"},
+        {"number": "30", "name": "RXD0",  "type": "I/O/T", "functions": ["U0RXD"],                               "group": "UART"},
+        {"number": "31", "name": "TXD0",  "type": "I/O/T", "functions": ["U0TXD"],                               "group": "UART"},
+        {"number": "11", "name": "GND",   "type": "P",   "functions": [],                                       "group": "Power"},
+        {"number": "39", "name": "GND",   "type": "P",   "functions": [],                                       "group": "Power"},
+    ]
+    return {
+        "chip_name": "ESP32-C3-MINI-1",
+        "manufacturer": "Espressif",
+        "description": "Wi-Fi & Bluetooth 5 (LE) module based on ESP32-C3 (RISC-V)",
+        "package": "SMD-53",
+        "pins": pins,
+        "power": {
+            "voltage_min": 3.0,
+            "voltage_typ": 3.3,
+            "voltage_max": 3.6,
+            "power_pins": ["3V3", "GND"],
+            "decoupling_caps": [
+                {"value": "22uF", "purpose": "bulk decoupling"},
+                {"value": "0.1uF", "purpose": "bypass"},
+            ],
+        },
+        "reference_circuit": {
+            "components": [
+                {"ref": "R1", "value": "10k", "purpose": "EN pullup"},
+                {"ref": "C1", "value": "1uF", "purpose": "EN RC delay"},
+                {"ref": "C2", "value": "22uF", "purpose": "bulk decoupling"},
+                {"ref": "C3", "value": "0.1uF", "purpose": "bypass"},
+            ],
+            "notes": [
+                "EN pin needs RC delay circuit for proper power-on reset",
+                "Place decoupling capacitors as close to 3V3 pin as possible",
+                "GPIO2, GPIO8, GPIO9 are strapping pins",
+            ],
+        },
+    }
+
+
+def _esp32_wroom32_fallback() -> dict:
+    """Return a hardcoded extraction for the ESP32-WROOM-32 module.
+
+    Pin data sourced from the ESP32-WROOM-32 datasheet v3.4, Table 2.
+    The module has 38 pins plus an exposed GND pad (pin 39).
+    """
+    pins = [
+        {"number": "1",  "name": "GND",       "type": "P",   "functions": [],                                                            "group": "Power"},
+        {"number": "2",  "name": "3V3",        "type": "P",   "functions": [],                                                            "group": "Power"},
+        {"number": "3",  "name": "EN",         "type": "I",   "functions": ["CHIP_PU"],                                                   "group": "Control"},
+        {"number": "4",  "name": "SENSOR_VP",  "type": "I",   "functions": ["GPIO36", "ADC1_CH0", "RTC_GPIO0"],                            "group": "ADC"},
+        {"number": "5",  "name": "SENSOR_VN",  "type": "I",   "functions": ["GPIO39", "ADC1_CH3", "RTC_GPIO3"],                            "group": "ADC"},
+        {"number": "6",  "name": "IO34",       "type": "I",   "functions": ["GPIO34", "ADC1_CH6", "RTC_GPIO4"],                            "group": "ADC"},
+        {"number": "7",  "name": "IO35",       "type": "I",   "functions": ["GPIO35", "ADC1_CH7", "RTC_GPIO5"],                            "group": "ADC"},
+        {"number": "8",  "name": "IO32",       "type": "I/O", "functions": ["GPIO32", "XTAL_32K_P", "ADC1_CH4", "TOUCH9", "RTC_GPIO9"],    "group": "GPIO"},
+        {"number": "9",  "name": "IO33",       "type": "I/O", "functions": ["GPIO33", "XTAL_32K_N", "ADC1_CH5", "TOUCH8", "RTC_GPIO8"],    "group": "GPIO"},
+        {"number": "10", "name": "IO25",       "type": "I/O", "functions": ["GPIO25", "DAC_1", "ADC2_CH8", "RTC_GPIO6", "EMAC_RXD0"],      "group": "GPIO"},
+        {"number": "11", "name": "IO26",       "type": "I/O", "functions": ["GPIO26", "DAC_2", "ADC2_CH9", "RTC_GPIO7", "EMAC_RXD1"],      "group": "GPIO"},
+        {"number": "12", "name": "IO27",       "type": "I/O", "functions": ["GPIO27", "ADC2_CH7", "TOUCH7", "RTC_GPIO17", "EMAC_RX_DV"],   "group": "GPIO"},
+        {"number": "13", "name": "IO14",       "type": "I/O", "functions": ["GPIO14", "ADC2_CH6", "TOUCH6", "RTC_GPIO16", "MTMS", "HSPICLK", "HS2_CLK", "SD_CLK", "EMAC_TXD2"], "group": "GPIO"},
+        {"number": "14", "name": "IO12",       "type": "I/O", "functions": ["GPIO12", "ADC2_CH5", "TOUCH5", "RTC_GPIO15", "MTDI", "HSPIQ", "HS2_DATA2", "SD_DATA2", "EMAC_TXD3"], "group": "GPIO"},
+        {"number": "15", "name": "GND",        "type": "P",   "functions": [],                                                            "group": "Power"},
+        {"number": "16", "name": "IO13",       "type": "I/O", "functions": ["GPIO13", "ADC2_CH4", "TOUCH4", "RTC_GPIO14", "MTCK", "HSPID", "HS2_DATA3", "SD_DATA3", "EMAC_RX_ER"], "group": "GPIO"},
+        {"number": "17", "name": "SHD/SD2",    "type": "I/O", "functions": ["GPIO9", "SD_DATA2", "SPIHD", "HS1_DATA2", "U1RXD"],           "group": "SPI"},
+        {"number": "18", "name": "SWP/SD3",    "type": "I/O", "functions": ["GPIO10", "SD_DATA3", "SPIWP", "HS1_DATA3", "U1TXD"],          "group": "SPI"},
+        {"number": "19", "name": "SCS/CMD",    "type": "I/O", "functions": ["GPIO11", "SD_CMD", "SPICS0", "HS1_CMD", "U1RTS"],             "group": "SPI"},
+        {"number": "20", "name": "SCK/CLK",    "type": "I/O", "functions": ["GPIO6", "SD_CLK", "SPICLK", "HS1_CLK", "U1CTS"],             "group": "SPI"},
+        {"number": "21", "name": "SDO/SD0",    "type": "I/O", "functions": ["GPIO7", "SD_DATA0", "SPIQ", "HS1_DATA0", "U2RTS"],            "group": "SPI"},
+        {"number": "22", "name": "SDI/SD1",    "type": "I/O", "functions": ["GPIO8", "SD_DATA1", "SPID", "HS1_DATA1", "U2CTS"],            "group": "SPI"},
+        {"number": "23", "name": "IO15",       "type": "I/O", "functions": ["GPIO15", "ADC2_CH3", "TOUCH3", "MTDO", "HSPICS0", "RTC_GPIO13", "HS2_CMD", "SD_CMD", "EMAC_RXD3"], "group": "GPIO"},
+        {"number": "24", "name": "IO2",        "type": "I/O", "functions": ["GPIO2", "ADC2_CH2", "TOUCH2", "RTC_GPIO12", "HSPIWP", "HS2_DATA0", "SD_DATA0"], "group": "GPIO"},
+        {"number": "25", "name": "IO0",        "type": "I/O", "functions": ["GPIO0", "ADC2_CH1", "TOUCH1", "RTC_GPIO11", "CLK_OUT1", "EMAC_TX_CLK"], "group": "GPIO"},
+        {"number": "26", "name": "IO4",        "type": "I/O", "functions": ["GPIO4", "ADC2_CH0", "TOUCH0", "RTC_GPIO10", "HSPIHD", "HS2_DATA1", "SD_DATA1", "EMAC_TX_ER"], "group": "GPIO"},
+        {"number": "27", "name": "IO16",       "type": "I/O", "functions": ["GPIO16", "HS1_DATA4", "U2RXD", "EMAC_CLK_OUT"],              "group": "GPIO"},
+        {"number": "28", "name": "IO17",       "type": "I/O", "functions": ["GPIO17", "HS1_DATA5", "U2TXD", "EMAC_CLK_OUT_180"],           "group": "GPIO"},
+        {"number": "29", "name": "IO5",        "type": "I/O", "functions": ["GPIO5", "VSPICS0", "HS1_DATA6", "EMAC_RX_CLK"],              "group": "GPIO"},
+        {"number": "30", "name": "IO18",       "type": "I/O", "functions": ["GPIO18", "VSPICLK", "HS1_DATA7"],                             "group": "SPI"},
+        {"number": "31", "name": "IO19",       "type": "I/O", "functions": ["GPIO19", "VSPIQ", "U0CTS", "EMAC_TXD0"],                     "group": "SPI"},
+        {"number": "32", "name": "NC",         "type": "P",   "functions": [],                                                            "group": "Power"},
+        {"number": "33", "name": "IO21",       "type": "I/O", "functions": ["GPIO21", "VSPIHD", "EMAC_TX_EN"],                             "group": "GPIO"},
+        {"number": "34", "name": "RXD0",       "type": "I/O", "functions": ["GPIO3", "U0RXD", "CLK_OUT2"],                                "group": "UART"},
+        {"number": "35", "name": "TXD0",       "type": "I/O", "functions": ["GPIO1", "U0TXD", "CLK_OUT3", "EMAC_RXD2"],                   "group": "UART"},
+        {"number": "36", "name": "IO22",       "type": "I/O", "functions": ["GPIO22", "VSPIWP", "U0RTS", "EMAC_TXD1"],                    "group": "GPIO"},
+        {"number": "37", "name": "IO23",       "type": "I/O", "functions": ["GPIO23", "VSPID", "HS1_STROBE"],                              "group": "SPI"},
+        {"number": "38", "name": "GND",        "type": "P",   "functions": [],                                                            "group": "Power"},
+        {"number": "39", "name": "GND",        "type": "P",   "functions": [],                                                            "group": "Power"},
+    ]
+    return {
+        "chip_name": "ESP32-WROOM-32",
+        "manufacturer": "Espressif",
+        "description": "Wi-Fi & Bluetooth MCU module based on ESP32-D0WDQ6",
+        "package": "SMD-38",
+        "pins": pins,
+        "power": {
+            "voltage_min": 3.0,
+            "voltage_typ": 3.3,
+            "voltage_max": 3.6,
+            "power_pins": ["3V3", "GND"],
+            "decoupling_caps": [
+                {"value": "22uF", "purpose": "bulk decoupling"},
+                {"value": "0.1uF", "purpose": "bypass"},
+            ],
+        },
+        "reference_circuit": {
+            "components": [
+                {"ref": "R1", "value": "10k", "purpose": "EN pullup"},
+                {"ref": "C1", "value": "0.1uF", "purpose": "EN RC delay"},
+                {"ref": "C2", "value": "22uF", "purpose": "bulk decoupling"},
+                {"ref": "C3", "value": "0.1uF", "purpose": "bypass"},
+            ],
+            "notes": [
+                "EN pin needs RC delay circuit for proper power-on reset",
+                "Place decoupling capacitors as close to 3V3 pin as possible",
+                "GPIO6-11 are used for internal SPI flash; do not use for other purposes",
+                "Strapping pins: MTDI (GPIO12), GPIO0, GPIO2, MTDO (GPIO15), GPIO5",
+            ],
+        },
+    }
+
+
 # -------------------------------------------------------------------------
 # Public API
 # -------------------------------------------------------------------------
@@ -282,7 +425,7 @@ def parse_datasheet(pdf_path: Path) -> ParsedDatasheet:
 
     First attempts extraction via the Claude CLI (``claude --print``).  If
     the CLI is unavailable or fails, falls back to a hardcoded extraction
-    for known chips (currently ESP32-S3-WROOM-1).
+    for known chips (ESP32-S3-WROOM-1, ESP32-C3-MINI-1, ESP32-WROOM-32).
 
     Args:
         pdf_path: Path to the datasheet PDF.
@@ -302,6 +445,10 @@ def parse_datasheet(pdf_path: Path) -> ParsedDatasheet:
         fname = pdf_path.stem.lower().replace("_", "-")
         if "esp32-s3-wroom" in fname:
             data = _esp32s3_wroom1_fallback()
+        elif "esp32-c3-mini" in fname:
+            data = _esp32c3_mini1_fallback()
+        elif "esp32-wroom-32" in fname and "32e" not in fname:
+            data = _esp32_wroom32_fallback()
         else:
             raise ValueError(
                 f"Claude CLI extraction failed and no fallback available for {pdf_path.name}"

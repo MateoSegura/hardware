@@ -10,6 +10,8 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 
+from src.pipeline.chip_library import generate_lib_symbol_sexp, lookup_chip
+
 
 def _uuid() -> str:
     """Generate a random UUID string."""
@@ -101,10 +103,17 @@ _LIB_SYMBOL_STUBS: dict[str, str] = {
 def _get_lib_symbol_stub(lib_id: str) -> str:
     """Get a lib_symbol stub for a given lib_id.
 
-    Returns a known stub if available, or generates a minimal 2-pin stub.
+    Checks the chip library for real multi-pin definitions first,
+    then falls back to known passive stubs, and finally generates
+    a minimal 2-pin stub for unknown symbols.
     """
     if lib_id in _LIB_SYMBOL_STUBS:
         return _LIB_SYMBOL_STUBS[lib_id]
+
+    # Check chip library for real IC definitions
+    chip = lookup_chip(lib_id)
+    if chip is not None:
+        return generate_lib_symbol_sexp(chip, lib_id)
 
     # Generate a minimal 2-pin passive stub for unknown symbols
     safe_name = lib_id.replace('"', '\\"')
@@ -183,9 +192,18 @@ def _gen_component(comp: ComponentPlacement, project_name: str,
     sym_uuid = _uuid()
 
     pin_section = ""
-    # Generate pin UUIDs — for known 2-pin components
+    # Generate pin UUIDs — match pin count to actual symbol definition
     lib_base = comp.lib_id.split(":")[-1] if ":" in comp.lib_id else comp.lib_id
-    if lib_base in ("R", "C", "L"):
+    chip = lookup_chip(comp.lib_id)
+    if chip is not None:
+        # Real IC: generate pin UUIDs for all pins
+        pin_lines = []
+        for pin_def in chip.pins:
+            pin_lines.append(
+                f'\t\t(pin "{pin_def.number}"\n\t\t\t(uuid "{_uuid()}")\n\t\t)'
+            )
+        pin_section = "\n".join(pin_lines)
+    elif lib_base in ("R", "C", "L"):
         pin_section = (
             f'\t\t(pin "1"\n\t\t\t(uuid "{_uuid()}")\n\t\t)\n'
             f'\t\t(pin "2"\n\t\t\t(uuid "{_uuid()}")\n\t\t)'

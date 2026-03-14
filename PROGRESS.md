@@ -8,18 +8,18 @@
 
 ---
 
-## Current Phase: PHASE 3 MOSTLY DONE, PHASE 4 PARTIAL — Generation needs major work
+## Current Phase: PHASE 4 NEARLY COMPLETE — Real IC symbols, wires, round-trip proven
 
-**809 tests passing. 110 projects parsed. 253 templates. Generation produces structural skeletons, not functional schematics.**
+**877 tests passing. 110 projects parsed. 343 clean IC families. Real multi-pin symbols for ESP32/STM32. 0 ERC errors.**
 
 ## Phase Overview
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **MOSTLY COMPLETE** — missing netlist round-trip validation (TASK-007/008) |
+| **PHASE 1** | Build + test the parser (kiutils fixes, discovery, hierarchy, board, export) | **COMPLETE** — netlist round-trip validated on 3 pilots (0 mismatches) |
 | **PHASE 2** | Clone + parse 100 projects at scale | **COMPLETE** (110/110 parsed, 779 units, 100% success) |
 | **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **MOSTLY COMPLETE** — missing Claude-powered cluster labeling (TASK-014) |
-| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **PARTIAL** (3/6 tasks done, generated output has zero wires + 2-pin IC stubs) |
+| **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **MOSTLY COMPLETE** — real IC symbols, wires, 0 ERC. Missing novel MCU test (TASK-024) |
 | **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **NOT STARTED** (0/5 tasks) |
 
 ---
@@ -77,12 +77,12 @@
 - [x] All 10 pilot projects parse without errors
 - [x] Commit and push
 
-### PHASE 1 MOSTLY DONE
+### PHASE 1 COMPLETE
 All tests pass. All 10 pilot projects parse into valid JSON. No crashes on
 any KiCad version (3-9). Hierarchical projects resolve correctly with
 components from all sub-sheets.
-**Missing:** Netlist round-trip validation (TASK-007/008) — `validate.py` wraps
-kicad-cli but there is no parse→regenerate→diff pipeline.
+Netlist round-trip validated: our parser matches kicad-cli netlist export
+with 0 mismatches on nrfmicro (flat), STM32F7 FC (hierarchical), dumbpad (KiCad 9).
 
 ---
 
@@ -138,7 +138,7 @@ Parse time: 137s total.
 - [x] Statistical summary per IC family — 437 families, 48,905 caps
 - [x] Output: data/patterns/decoupling_rules.json
 - [x] tests/test_patterns.py (79 tests)
-- [ ] Re-extract to filter 57 connector families misclassified as ICs (fix applied, needs re-run)
+- [x] Re-extracted: 437 → 343 families, 0 connectors remaining (improved classify_component)
 
 ### 3.4 Hierarchical sheet organization patterns
 - [x] Record: sheet name → functional domains (power, mcu, comm, sensor, etc.)
@@ -159,8 +159,10 @@ Missing: TASK-014 (Claude-powered cluster labeling).
 ## PHASE 4: Generation Tools
 
 ### 4.1 Datasheet → structured data
-- [ ] PDF ingestion → pin tables, power requirements, reference circuits
-- [ ] Output: structured JSON per chip
+- [x] PDF ingestion → pin tables, power requirements, reference circuits
+- [x] Hardcoded fallbacks for ESP32-S3-WROOM-1, ESP32-C3-MINI-1, ESP32-WROOM-32
+- [x] Claude CLI integration for unknown chips (untested in production)
+- [x] Output: ParsedDatasheet with ChipDef, PinDef, power specs, reference circuits
 
 ### 4.2 Symbol + footprint generator
 - [x] src/pipeline/symbol_gen.py — multi-unit .kicad_sym from structured pin data
@@ -186,10 +188,11 @@ Missing: TASK-014 (Claude-powered cluster labeling).
 
 ### 4.6 Known generation gaps (from 2026-03-14 audit)
 - [x] Wire segments — passives now have wires connecting pins to nearby labels
-- [ ] Real IC symbols — all ICs render as 2-pin stubs (need full pin definitions from datasheet parser)
+- [x] Real IC symbols — chip_library.py: ESP32-S3 (36 pins), STM32F411 (48 pins), NEO-6M (10 pins)
 - [x] Component placement — hierarchical labels now spread vertically (7.62mm spacing)
 - [x] Missing project files — .kicad_pro, sym-lib-table, fp-lib-table now generated
 - [x] ERC clean — GPS tracker now has 0 ERC errors
+- [x] Netlist round-trip — our parser matches kicad-cli on 3 pilots (0 mismatches)
 
 ---
 

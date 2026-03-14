@@ -15,8 +15,11 @@ from src.pipeline.datasheet_parser import (
 )
 from src.pipeline.symbol_gen import ChipDef, PinDef
 
-# Path to the already-downloaded ESP32-S3-WROOM-1 datasheet
-ESP32_PDF = Path(__file__).resolve().parent.parent / "data" / "datasheets" / "esp32-s3-wroom-1.pdf"
+# Paths to the already-downloaded datasheets
+_DS_DIR = Path(__file__).resolve().parent.parent / "data" / "datasheets"
+ESP32_PDF = _DS_DIR / "esp32-s3-wroom-1.pdf"
+ESP32_C3_PDF = _DS_DIR / "esp32-c3-mini-1.pdf"
+ESP32_WROOM32_PDF = _DS_DIR / "esp32-wroom-32.pdf"
 
 
 @pytest.fixture
@@ -177,3 +180,238 @@ class TestReferenceCircuit:
 
     def test_notes_present(self, parsed: ParsedDatasheet):
         assert len(parsed.reference_circuit.notes) >= 1
+
+
+# =========================================================================
+# ESP32-C3-MINI-1 fallback tests
+# =========================================================================
+
+@pytest.fixture
+def parsed_c3() -> ParsedDatasheet:
+    """Parse the ESP32-C3-MINI-1 datasheet using the hardcoded fallback."""
+    assert ESP32_C3_PDF.exists(), f"Datasheet not found: {ESP32_C3_PDF}"
+    with patch("src.pipeline.datasheet_parser._extract_via_claude", return_value=None):
+        return parse_datasheet(ESP32_C3_PDF)
+
+
+class TestParseEsp32c3Datasheet:
+    """Integration tests for parse_datasheet() with the ESP32-C3-MINI-1."""
+
+    def test_chip_name(self, parsed_c3: ParsedDatasheet):
+        assert "ESP32-C3" in parsed_c3.chip_name
+
+    def test_manufacturer(self, parsed_c3: ParsedDatasheet):
+        assert parsed_c3.manufacturer.lower() == "espressif"
+
+    def test_pin_count(self, parsed_c3: ParsedDatasheet):
+        """ESP32-C3-MINI-1 fallback has 21 entries (17 signals + 4 GND)."""
+        assert parsed_c3.pin_count == 21
+        assert len(parsed_c3.pins) == 21
+
+    def test_package(self, parsed_c3: ParsedDatasheet):
+        assert "53" in parsed_c3.package
+
+
+class TestC3PinGroups:
+    """Verify pin groups are organised correctly for ESP32-C3-MINI-1."""
+
+    def test_power_pins(self, parsed_c3: ParsedDatasheet):
+        power = [p for p in parsed_c3.pins if p.group == "Power"]
+        assert len(power) >= 3  # GND x3 + 3V3
+
+    def test_control_pin(self, parsed_c3: ParsedDatasheet):
+        ctrl = [p for p in parsed_c3.pins if p.group == "Control"]
+        assert len(ctrl) == 1
+        assert ctrl[0].name == "EN"
+
+    def test_uart_pins(self, parsed_c3: ParsedDatasheet):
+        uart = [p for p in parsed_c3.pins if p.group == "UART"]
+        names = {p.name for p in uart}
+        assert "TXD0" in names
+        assert "RXD0" in names
+
+    def test_usb_pins(self, parsed_c3: ParsedDatasheet):
+        usb = [p for p in parsed_c3.pins if p.group == "USB"]
+        assert len(usb) == 2
+
+    def test_jtag_pins(self, parsed_c3: ParsedDatasheet):
+        jtag = [p for p in parsed_c3.pins if p.group == "JTAG"]
+        assert len(jtag) == 4  # IO4(MTMS), IO5(MTDI), IO6(MTCK), IO7(MTDO)
+
+    def test_spi_pin(self, parsed_c3: ParsedDatasheet):
+        spi = [p for p in parsed_c3.pins if p.group == "SPI"]
+        assert len(spi) >= 1  # IO10/FSPICS0
+
+
+class TestC3PinTypes:
+    """Verify electrical types for ESP32-C3-MINI-1."""
+
+    def test_gnd_is_power_in(self, parsed_c3: ParsedDatasheet):
+        gnd = [p for p in parsed_c3.pins if p.name == "GND"]
+        assert all(p.electrical_type == "power_in" for p in gnd)
+
+    def test_en_is_input(self, parsed_c3: ParsedDatasheet):
+        en = [p for p in parsed_c3.pins if p.name == "EN"]
+        assert en[0].electrical_type == "input"
+
+    def test_gpio_is_bidirectional(self, parsed_c3: ParsedDatasheet):
+        io8 = [p for p in parsed_c3.pins if p.name == "IO8"]
+        assert io8[0].electrical_type == "bidirectional"
+
+
+class TestC3ChipDef:
+    """Verify ESP32-C3-MINI-1 converts to valid ChipDef."""
+
+    def test_to_chipdef(self, parsed_c3: ParsedDatasheet):
+        chipdef = parsed_c3.to_chipdef()
+        assert isinstance(chipdef, ChipDef)
+        assert len(chipdef.pins) == 21
+        for pin in chipdef.pins:
+            assert isinstance(pin, PinDef)
+            assert pin.number
+            assert pin.name
+            assert pin.electrical_type
+            assert pin.group
+
+
+class TestC3Power:
+    """Verify power requirements for ESP32-C3-MINI-1."""
+
+    def test_voltage_range(self, parsed_c3: ParsedDatasheet):
+        pwr = parsed_c3.power_requirements
+        assert pwr.supply_voltage_min == pytest.approx(3.0)
+        assert pwr.supply_voltage_typ == pytest.approx(3.3)
+        assert pwr.supply_voltage_max == pytest.approx(3.6)
+
+    def test_decoupling(self, parsed_c3: ParsedDatasheet):
+        caps = parsed_c3.power_requirements.decoupling_caps
+        assert len(caps) >= 2
+
+
+# =========================================================================
+# ESP32-WROOM-32 fallback tests
+# =========================================================================
+
+@pytest.fixture
+def parsed_wroom32() -> ParsedDatasheet:
+    """Parse the ESP32-WROOM-32 datasheet using the hardcoded fallback."""
+    assert ESP32_WROOM32_PDF.exists(), f"Datasheet not found: {ESP32_WROOM32_PDF}"
+    with patch("src.pipeline.datasheet_parser._extract_via_claude", return_value=None):
+        return parse_datasheet(ESP32_WROOM32_PDF)
+
+
+class TestParseEsp32Wroom32Datasheet:
+    """Integration tests for parse_datasheet() with the ESP32-WROOM-32."""
+
+    def test_chip_name(self, parsed_wroom32: ParsedDatasheet):
+        assert "ESP32-WROOM-32" in parsed_wroom32.chip_name
+
+    def test_manufacturer(self, parsed_wroom32: ParsedDatasheet):
+        assert parsed_wroom32.manufacturer.lower() == "espressif"
+
+    def test_pin_count(self, parsed_wroom32: ParsedDatasheet):
+        """ESP32-WROOM-32 has 38 pins + 1 exposed GND pad = 39."""
+        assert parsed_wroom32.pin_count == 39
+        assert len(parsed_wroom32.pins) == 39
+
+    def test_package(self, parsed_wroom32: ParsedDatasheet):
+        assert "38" in parsed_wroom32.package
+
+
+class TestWroom32PinGroups:
+    """Verify pin groups are organised correctly for ESP32-WROOM-32."""
+
+    def test_power_pins(self, parsed_wroom32: ParsedDatasheet):
+        power = [p for p in parsed_wroom32.pins if p.group == "Power"]
+        assert len(power) >= 4  # GND x3 + 3V3 + NC (typed P)
+
+    def test_control_pin(self, parsed_wroom32: ParsedDatasheet):
+        ctrl = [p for p in parsed_wroom32.pins if p.group == "Control"]
+        assert len(ctrl) == 1
+        assert ctrl[0].name == "EN"
+
+    def test_uart_pins(self, parsed_wroom32: ParsedDatasheet):
+        uart = [p for p in parsed_wroom32.pins if p.group == "UART"]
+        names = {p.name for p in uart}
+        assert "TXD0" in names
+        assert "RXD0" in names
+
+    def test_adc_input_only_pins(self, parsed_wroom32: ParsedDatasheet):
+        adc = [p for p in parsed_wroom32.pins if p.group == "ADC"]
+        # SENSOR_VP, SENSOR_VN, IO34, IO35 are input-only ADC pins
+        assert len(adc) >= 4
+
+    def test_spi_pins(self, parsed_wroom32: ParsedDatasheet):
+        spi = [p for p in parsed_wroom32.pins if p.group == "SPI"]
+        assert len(spi) >= 6  # SHD/SD2, SWP/SD3, SCS/CMD, SCK/CLK, SDO/SD0, SDI/SD1 + VSPI
+
+
+class TestWroom32PinTypes:
+    """Verify electrical types for ESP32-WROOM-32."""
+
+    def test_gnd_is_power_in(self, parsed_wroom32: ParsedDatasheet):
+        gnd = [p for p in parsed_wroom32.pins if p.name == "GND"]
+        assert all(p.electrical_type == "power_in" for p in gnd)
+
+    def test_en_is_input(self, parsed_wroom32: ParsedDatasheet):
+        en = [p for p in parsed_wroom32.pins if p.name == "EN"]
+        assert en[0].electrical_type == "input"
+
+    def test_sensor_vp_is_input(self, parsed_wroom32: ParsedDatasheet):
+        vp = [p for p in parsed_wroom32.pins if p.name == "SENSOR_VP"]
+        assert vp[0].electrical_type == "input"
+
+    def test_io25_is_bidirectional(self, parsed_wroom32: ParsedDatasheet):
+        io25 = [p for p in parsed_wroom32.pins if p.name == "IO25"]
+        assert io25[0].electrical_type == "bidirectional"
+
+
+class TestWroom32ChipDef:
+    """Verify ESP32-WROOM-32 converts to valid ChipDef."""
+
+    def test_to_chipdef(self, parsed_wroom32: ParsedDatasheet):
+        chipdef = parsed_wroom32.to_chipdef()
+        assert isinstance(chipdef, ChipDef)
+        assert len(chipdef.pins) == 39
+        for pin in chipdef.pins:
+            assert isinstance(pin, PinDef)
+            assert pin.number
+            assert pin.name
+            assert pin.electrical_type
+            assert pin.group
+
+
+class TestWroom32Power:
+    """Verify power requirements for ESP32-WROOM-32."""
+
+    def test_voltage_range(self, parsed_wroom32: ParsedDatasheet):
+        pwr = parsed_wroom32.power_requirements
+        assert pwr.supply_voltage_min == pytest.approx(3.0)
+        assert pwr.supply_voltage_typ == pytest.approx(3.3)
+        assert pwr.supply_voltage_max == pytest.approx(3.6)
+
+    def test_decoupling(self, parsed_wroom32: ParsedDatasheet):
+        caps = parsed_wroom32.power_requirements.decoupling_caps
+        assert len(caps) >= 2
+
+
+class TestFallbackDispatch:
+    """Verify fallback dispatch selects the correct chip."""
+
+    def test_unknown_chip_raises(self):
+        """Unknown chip raises ValueError when Claude CLI is unavailable."""
+        fake_pdf = _DS_DIR / "esp32-h2-mini-1.pdf"
+        if not fake_pdf.exists():
+            pytest.skip("PDF not available")
+        with patch("src.pipeline.datasheet_parser._extract_via_claude", return_value=None):
+            with pytest.raises(ValueError, match="no fallback available"):
+                parse_datasheet(fake_pdf)
+
+    def test_wroom32e_does_not_match_wroom32(self):
+        """ESP32-WROOM-32E should NOT match the ESP32-WROOM-32 fallback."""
+        fake_pdf = _DS_DIR / "esp32-wroom-32e.pdf"
+        if not fake_pdf.exists():
+            pytest.skip("PDF not available")
+        with patch("src.pipeline.datasheet_parser._extract_via_claude", return_value=None):
+            with pytest.raises(ValueError, match="no fallback available"):
+                parse_datasheet(fake_pdf)
