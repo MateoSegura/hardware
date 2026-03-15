@@ -1,4 +1,4 @@
-"""Manufacturing integration — BOM, CPL, Gerber, and drill exports.
+"""Manufacturing integration — BOM, CPL, Gerber, drill, and 3D exports.
 
 Wraps kicad-cli v9 for manufacturing output generation and provides
 parts inventory management for LumenPNP pick-and-place workflow.
@@ -7,6 +7,7 @@ TASK-025: Parts inventory (load/save JSON)
 TASK-026: BOM export and matching to inventory
 TASK-027: CPL generation for LumenPNP
 TASK-028: Gerber + drill export
+TASK-029: 3D model export (STEP + VRML)
 """
 
 from __future__ import annotations
@@ -482,7 +483,7 @@ def export_manufacturing_package(
     sch_path: Path,
     output_dir: Path,
 ) -> dict:
-    """Export complete manufacturing package: Gerbers + drill + BOM + CPL.
+    """Export complete manufacturing package: Gerbers + drill + BOM + CPL + 3D.
 
     Creates subdirectories under output_dir:
         gerbers/   — Gerber files
@@ -490,8 +491,11 @@ def export_manufacturing_package(
         bom.csv    — Bill of materials
         cpl.csv    — Component placement list (KiCad format)
         lumen_pnp.csv — LumenPNP-compatible placement
+        board.step — STEP 3D model
+        board.wrl  — VRML 3D model
 
-    Returns a summary dict with keys: gerbers, drill, bom, cpl, success, errors.
+    Returns a summary dict with keys: gerbers, drill, bom, cpl, step, vrml,
+    success, errors.
     """
     pcb_path = Path(pcb_path)
     sch_path = Path(sch_path)
@@ -503,6 +507,8 @@ def export_manufacturing_package(
         "drill": None,
         "bom_count": 0,
         "cpl_count": 0,
+        "step": None,
+        "vrml": None,
         "success": True,
         "errors": [],
     }
@@ -553,4 +559,151 @@ def export_manufacturing_package(
         summary["success"] = False
         summary["errors"].append(str(e))
 
+    # 3D models (STEP + VRML)
+    step_path = output_dir / "board.step"
+    step_result = export_step(pcb_path, step_path)
+    summary["step"] = {
+        "file": str(step_path.name),
+        "size_bytes": step_result.file_size_bytes,
+        "success": step_result.success,
+    }
+    if not step_result.success:
+        summary["errors"].extend(step_result.errors)
+
+    vrml_path = output_dir / "board.wrl"
+    vrml_result = export_vrml(pcb_path, vrml_path)
+    summary["vrml"] = {
+        "file": str(vrml_path.name),
+        "size_bytes": vrml_result.file_size_bytes,
+        "success": vrml_result.success,
+    }
+    if not vrml_result.success:
+        summary["errors"].extend(vrml_result.errors)
+
     return summary
+
+
+# ---------------------------------------------------------------------------
+# TASK-029: 3D model export (STEP + VRML)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class Model3dOutput:
+    """Result of a 3D model export operation."""
+
+    output_path: Path
+    file_size_bytes: int = 0
+    success: bool = True
+    errors: list[str] = field(default_factory=list)
+
+
+def export_step(
+    pcb_path: Path,
+    output_path: Path,
+    *,
+    board_only: bool = False,
+    no_dnp: bool = False,
+) -> Model3dOutput:
+    """Export a STEP 3D model from a PCB using kicad-cli.
+
+    Args:
+        pcb_path: Path to the .kicad_pcb file.
+        output_path: Path for the output .step file.
+        board_only: If True, export only the PCB substrate (no components).
+        no_dnp: If True, exclude "Do Not Populate" components.
+
+    Returns:
+        Model3dOutput with success status and file metadata.
+    """
+    pcb_path = Path(pcb_path)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    result_obj = Model3dOutput(output_path=output_path)
+
+    args = [
+        "pcb", "export", "step",
+        str(pcb_path),
+        "-o", str(output_path),
+        "--force",
+    ]
+    if board_only:
+        args.append("--board-only")
+    if no_dnp:
+        args.append("--no-dnp")
+
+    try:
+        result = _run_kicad_cli(args)
+
+        if not output_path.exists() or output_path.stat().st_size == 0:
+            result_obj.success = False
+            stderr = result.stderr.strip()
+            result_obj.errors.append(stderr or "STEP export produced no output")
+            return result_obj
+
+        result_obj.file_size_bytes = output_path.stat().st_size
+
+    except subprocess.TimeoutExpired:
+        result_obj.success = False
+        result_obj.errors.append(f"STEP export timed out after {TIMEOUT}s")
+    except OSError as e:
+        result_obj.success = False
+        result_obj.errors.append(str(e))
+
+    return result_obj
+
+
+def export_vrml(
+    pcb_path: Path,
+    output_path: Path,
+    *,
+    units: str = "in",
+    no_dnp: bool = False,
+) -> Model3dOutput:
+    """Export a VRML 3D model from a PCB using kicad-cli.
+
+    Args:
+        pcb_path: Path to the .kicad_pcb file.
+        output_path: Path for the output .wrl file.
+        units: Output units — "in" (default), "mm", "m", or "tenths".
+        no_dnp: If True, exclude "Do Not Populate" components.
+
+    Returns:
+        Model3dOutput with success status and file metadata.
+    """
+    pcb_path = Path(pcb_path)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    result_obj = Model3dOutput(output_path=output_path)
+
+    args = [
+        "pcb", "export", "vrml",
+        str(pcb_path),
+        "-o", str(output_path),
+        "--force",
+        "--units", units,
+    ]
+    if no_dnp:
+        args.append("--no-dnp")
+
+    try:
+        result = _run_kicad_cli(args)
+
+        if not output_path.exists() or output_path.stat().st_size == 0:
+            result_obj.success = False
+            stderr = result.stderr.strip()
+            result_obj.errors.append(stderr or "VRML export produced no output")
+            return result_obj
+
+        result_obj.file_size_bytes = output_path.stat().st_size
+
+    except subprocess.TimeoutExpired:
+        result_obj.success = False
+        result_obj.errors.append(f"VRML export timed out after {TIMEOUT}s")
+    except OSError as e:
+        result_obj.success = False
+        result_obj.errors.append(str(e))
+
+    return result_obj

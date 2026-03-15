@@ -8,9 +8,9 @@
 
 ---
 
-## Current Phase: PHASE 5 IN PROGRESS — Manufacturing integration
+## Current Phase: ALL PHASES COMPLETE
 
-**993 tests passing. 110 projects parsed. 343 clean IC families. Real multi-pin symbols for ESP32/STM32. 0 ERC errors. BOM/CPL/Gerber/Drill exports working.**
+**1005 tests passing. 110 projects parsed. 343 clean IC families. Real multi-pin symbols for ESP32/STM32. 0 ERC errors. Full manufacturing pipeline (BOM/CPL/Gerber/Drill/STEP/VRML).**
 
 ## Phase Overview
 
@@ -20,7 +20,7 @@
 | **PHASE 2** | Clone + parse 100 projects at scale | **COMPLETE** (110/110 parsed, 779 units, 100% success) |
 | **PHASE 3** | Extract circuit patterns (subcircuit clustering, decoupling rules, templates) | **COMPLETE** — 30 clusters labeled via Claude CLI |
 | **PHASE 4** | Build generation tools (datasheet→symbol, template instantiation, schematic gen) | **COMPLETE** — real IC symbols, wires, 0 ERC. Novel MCU e2e test passing (TASK-024 done) |
-| **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **IN PROGRESS** (4/5 tasks complete) |
+| **PHASE 5** | Manufacturing integration (BOM, CPL, Gerber, 3D) | **COMPLETE** (5/5 tasks) |
 
 ---
 
@@ -224,12 +224,16 @@ TASK-014 complete: 30 clusters labeled via Claude CLI (src/pipeline/cluster_labe
 - [x] export_manufacturing_package() — complete package (Gerbers + drill + BOM + CPL)
 - [x] Tests on real STM32F7 FC project (12 tests)
 
-### 5.5 3D model export
-- [ ] Not yet started
+### 5.5 3D model export (TASK-029)
+- [x] Model3dOutput dataclass with output_path, file_size_bytes, success, errors
+- [x] export_step() — kicad-cli STEP export with board_only and no_dnp options
+- [x] export_vrml() — kicad-cli VRML export with configurable units
+- [x] Integrated into export_manufacturing_package() (board.step + board.wrl)
+- [x] Tests on real STM32F7 FC + VESC controller projects (12 tests)
 
-### PHASE 5 MOSTLY DONE
-Manufacturing pipeline complete: BOM, CPL, Gerber, drill exports all working.
-34 tests passing on real STM32F7 FC project. Missing: 3D model export (TASK-029).
+### PHASE 5 COMPLETE
+Manufacturing pipeline complete: BOM, CPL, Gerber, drill, STEP, VRML exports all working.
+46 tests passing on real projects. Full manufacturing package generates all outputs.
 
 ---
 

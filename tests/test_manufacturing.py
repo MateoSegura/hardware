@@ -442,6 +442,10 @@ class TestManufacturingPackage:
         assert summary["drill"]["count"] >= 1
         assert summary["bom_count"] > 50
         assert summary["cpl_count"] > 50
+        assert summary["step"]["success"] is True
+        assert summary["step"]["size_bytes"] > 0
+        assert summary["vrml"]["success"] is True
+        assert summary["vrml"]["size_bytes"] > 0
         assert len(summary["errors"]) == 0
 
     def test_manufacturing_package_creates_all_files(self, tmp_dir):
@@ -453,6 +457,8 @@ class TestManufacturingPackage:
         assert (out / "bom.csv").is_file()
         assert (out / "cpl.csv").is_file()
         assert (out / "lumen_pnp.csv").is_file()
+        assert (out / "board.step").is_file()
+        assert (out / "board.wrl").is_file()
 
     def test_manufacturing_package_gerbers_directory(self, tmp_dir):
         out = tmp_dir / "mfg_output"
